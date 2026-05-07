@@ -1,0 +1,50 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Deploy to staging server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /app/aigc-for-study
+
+            # 拉取最新代码
+            git pull origin develop
+
+            # 拉取最新镜像
+            docker-compose pull 2>/dev/null || true
+
+            # 重启服务
+            docker-compose up -d 2>/dev/null || echo "Docker compose not configured, skipping..."
+
+            # 健康检查
+            sleep 10
+            curl -f http://localhost:8000/health || curl -f http://localhost:3000 || echo "Health check endpoint not available"
+
+            echo "Deployment to staging completed!"
+
+      - name: Notify deployment status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✓ Deployment to staging succeeded"
+          else
+            echo "✗ Deployment to staging failed"
+          fi

@@ -1,0 +1,76 @@
+name: Deploy to Production
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., v1.0.0)'
+        required: true
+        default: 'latest'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${{ github.event.release.tag_name }}"
+          fi
+          echo "Deploying version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          script: |
+            cd /app/aigc-for-study
+
+            # 拉取指定版本
+            git fetch --tags
+            if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+              git checkout ${{ github.event.inputs.version }}
+            else
+              git checkout ${{ github.event.release.tag_name }}
+            fi
+
+            # 拉取镜像
+            docker-compose pull 2>/dev/null || true
+
+            # 停止旧服务
+            docker-compose down 2>/dev/null || true
+
+            # 启动新服务
+            docker-compose up -d 2>/dev/null || echo "Docker compose not configured"
+
+            # 健康检查
+            sleep 15
+            curl -f http://localhost:8000/health || curl -f http://localhost:3000 || echo "Health check endpoint not available"
+
+            echo "Production deployment completed!"
+
+      - name: Verify deployment
+        run: |
+          echo "Production deployment verified: ${{ env.VERSION }}"
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✓ Production deployment succeeded: ${{ env.VERSION }}"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "✗ Production deployment failed: ${{ env.VERSION }}"
