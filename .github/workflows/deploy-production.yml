@@ -35,8 +35,16 @@ jobs:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          envs: PRODUCTION_PORT
           script: |
+            export PRODUCTION_PORT="${{ vars.PRODUCTION_PORT }}"
             cd /app/aigc-for-study
+
+            # 创建生产环境配置文件
+            cat > .env.production << EOF
+            APP_PORT=$PRODUCTION_PORT
+            APP_ENV=production
+            EOF
 
             # 拉取指定版本
             git fetch --tags
@@ -47,19 +55,19 @@ jobs:
             fi
 
             # 拉取镜像
-            docker-compose pull 2>/dev/null || true
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml pull 2>/dev/null || true
 
             # 停止旧服务
-            docker-compose down 2>/dev/null || true
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml down 2>/dev/null || true
 
-            # 启动新服务
-            docker-compose up -d 2>/dev/null || echo "Docker compose not configured"
+            # 使用生产环境配置启动服务
+            docker-compose -f docker-compose.yml -f docker-compose.production.yml up -d 2>/dev/null || echo "Docker compose not configured"
 
             # 健康检查
             sleep 15
-            curl -f http://localhost:8000/health || curl -f http://localhost:3000 || echo "Health check endpoint not available"
+            curl -f http://localhost:$PRODUCTION_PORT/health || curl -f http://localhost:$PRODUCTION_PORT || echo "Health check endpoint not available"
 
-            echo "Production deployment completed!"
+            echo "Production deployment completed on port $PRODUCTION_PORT!"
 
       - name: Verify deployment
         run: |

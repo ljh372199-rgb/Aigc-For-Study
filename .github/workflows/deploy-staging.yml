@@ -22,23 +22,31 @@ jobs:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
+          envs: STAGING_PORT
           script: |
+            export STAGING_PORT="${{ vars.STAGING_PORT }}"
             cd /app/aigc-for-study
+
+            # 创建测试环境配置文件
+            cat > .env.staging << EOF
+            APP_PORT=$STAGING_PORT
+            APP_ENV=staging
+            EOF
 
             # 拉取最新代码
             git pull origin develop
 
             # 拉取最新镜像
-            docker-compose pull 2>/dev/null || true
+            docker-compose -f docker-compose.yml -f docker-compose.staging.yml pull 2>/dev/null || true
 
-            # 重启服务
-            docker-compose up -d 2>/dev/null || echo "Docker compose not configured, skipping..."
+            # 使用测试环境配置启动服务
+            docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d 2>/dev/null || echo "Docker compose not configured, skipping..."
 
             # 健康检查
             sleep 10
-            curl -f http://localhost:8000/health || curl -f http://localhost:3000 || echo "Health check endpoint not available"
+            curl -f http://localhost:$STAGING_PORT/health || curl -f http://localhost:$STAGING_PORT || echo "Health check endpoint not available"
 
-            echo "Deployment to staging completed!"
+            echo "Deployment to staging completed on port $STAGING_PORT!"
 
       - name: Notify deployment status
         if: always()
