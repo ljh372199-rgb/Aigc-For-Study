@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aigc-api-production
+    restart: unless-stopped
+    ports:
+      - "38001:8000"
+    environment:
+      - APP_ENV=production
+      - APP_PORT=38001
+      - DATABASE_URL=${DATABASE_URL:-postgresql://aigc:aigc@db:5432/aigc_prod}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    volumes:
+      - uploads_production:/app/uploads
+    depends_on:
+      - db
+      - redis
+    networks:
+      - aigc-network
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aigc-web-production
+    restart: unless-stopped
+    ports:
+      - "38002:80"
+    environment:
+      - VITE_API_BASE_URL=http://124.223.78.206:38001/api/v1
+      - VITE_APP_ENV=production
+    volumes:
+      - uploads_production:/app/uploads
+    depends_on:
+      - api
+    networks:
+      - aigc-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: aigc-db-production
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=aigc
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-aigc}
+      - POSTGRES_DB=aigc_prod
+    volumes:
+      - postgres_data_production:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - aigc-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: aigc-redis-production
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_data_production:/data
+    networks:
+      - aigc-network
+
+volumes:
+  postgres_data_production:
+  redis_data_production:
+  uploads_production:
+
+networks:
+  aigc-network:
+    driver: bridge
