@@ -1,64 +1,42 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { useAuth } from '@/hooks/useAuth';
 
 export function RootLoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const { login, loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('请填写用户名/邮箱和密码');
+      setLoginError('请填写用户名/邮箱和密码');
       return;
     }
 
-    setLoading(true);
-    setError('');
+    setLoginError('');
 
     try {
-      const formData = new URLSearchParams();
-      formData.append('username', email);
-      formData.append('password', password);
-
-      const res = await axios.post(`${API_BASE_URL}/auth/login`, formData.toString(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      });
-
-      const { access_token, refresh_token } = res.data;
-      localStorage.setItem('access_token', access_token);
-      if (refresh_token) {
-        localStorage.setItem('refresh_token', refresh_token);
+      const result = await login(email, password);
+      if (result.success && result.user) {
+        const rolePath = result.user.role === 'student' ? '/student/dashboard' : '/teacher/home';
+        navigate(rolePath);
+      } else {
+        setLoginError(result.error || '登录失败，请检查用户名/邮箱和密码');
       }
-
-      const userRes = await axios.get(`${API_BASE_URL}/users/me`, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
-
-      const role = userRes.data.role;
-      localStorage.setItem('mock_role', role);
-      localStorage.setItem('user_id', userRes.data.id);
-      localStorage.setItem('username', userRes.data.username);
-      localStorage.setItem('user_email', userRes.data.email);
-      navigate(role === 'student' ? '/student/dashboard' : '/teacher/home');
     } catch (err: any) {
       const detail = err.response?.data?.detail;
       if (typeof detail === 'string') {
-        setError(detail);
+        setLoginError(detail);
       } else if (Array.isArray(detail)) {
-        setError(detail.map((e: any) => e.msg || e.message).join(', '));
+        setLoginError(detail.map((e: any) => e.msg || e.message).join(', '));
       } else {
-        setError('登录失败，请检查用户名/邮箱和密码');
+        setLoginError('登录失败，请检查用户名/邮箱和密码');
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -111,9 +89,9 @@ export function RootLoginPage() {
               </div>
             </div>
 
-            {error && (
+            {loginError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
-                {error}
+                {loginError}
               </div>
             )}
 

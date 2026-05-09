@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import { GuestGuard } from '@/components/GuestGuard';
 import { ToastProvider } from '@/components/ui';
@@ -24,7 +23,7 @@ import { TeacherLessonPlanPage } from '@/pages/TeacherLessonPlanPage';
 import { TeacherResourcesPage } from '@/pages/TeacherResourcesPage';
 import { TeacherTicketsPage } from '@/pages/TeacherTicketsPage';
 import { TeacherAnalyticsPage } from '@/pages/TeacherAnalyticsPage';
-import type { User } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 function LoadingScreen() {
   return (
@@ -34,28 +33,8 @@ function LoadingScreen() {
   );
 }
 
-function createMockUser(role: 'student' | 'teacher'): User {
-  return {
-    id: `mock-${role}`,
-    username: role === 'student' ? 'Student User' : 'Teacher User',
-    email: `${role}@example.com`,
-    role,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-}
-
 function AuthLayout() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const mockRole = localStorage.getItem('mock_role') as 'student' | 'teacher' | null;
-    if (mockRole) {
-      setUser(createMockUser(mockRole));
-    }
-    setLoading(false);
-  }, []);
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <LoadingScreen />;
@@ -69,14 +48,11 @@ function AuthLayout() {
 }
 
 function HomeRedirect() {
-  const mockRole = localStorage.getItem('mock_role') as 'student' | 'teacher' | null;
-  if (mockRole === 'student') {
-    return <Navigate to="/student/dashboard" replace />;
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
-  if (mockRole === 'teacher') {
-    return <Navigate to="/teacher/home" replace />;
-  }
-  return <RootLoginPage />;
+  return <Navigate to={user.role === 'student' ? '/student/dashboard' : '/teacher/home'} replace />;
 }
 
 function StudentRoutes() {
