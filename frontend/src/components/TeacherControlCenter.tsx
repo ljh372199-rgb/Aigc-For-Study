@@ -1,12 +1,27 @@
 import { useState, useEffect } from 'react';
 import {
-  Users, AlertCircle, X, Sparkles, Wand2, Plus, Copy, Check, Building2, ClipboardList
+  Building2,
+  Users,
+  AlertCircle,
+  Wand2,
+  Plus,
+  ClipboardList,
+  X,
+  Eye,
+  Mail,
+  Calendar,
+  BookOpen,
+  Upload,
+  Sparkles,
+  FileText,
+  HelpCircle,
+  BarChart3,
 } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
+import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Textarea';
 import { classApi } from '@/services/api';
 
@@ -25,51 +40,51 @@ interface Class {
 interface Student {
   id: string;
   name: string;
-  className: string;
   email: string;
+  className: string;
   status: 'active' | 'pending';
+  createdAt?: string;
 }
 
 export function TeacherControlCenter() {
-  const [copilotOpen, setCopilotOpen] = useState(false);
-  const [showClassModal, setShowClassModal] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [showClassCodeModal, setShowClassCodeModal] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
-
   const [classes, setClasses] = useState<Class[]>([]);
+  const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [showClassModal, setShowClassModal] = useState(false);
+  const [showClassCodeModal, setShowClassCodeModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showStudentDetailModal, setShowStudentDetailModal] = useState(false);
+  const [showLargeStudentListModal, setShowLargeStudentListModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
+  const [form, setForm] = useState({ className: '', classDescription: '' });
 
-  const [students] = useState<Student[]>([]);
+  const fetchClasses = async () => {
+    try {
+      const response = await classApi.getAll();
+      setClasses(response.data);
+      if (response.data.length > 0 && !selectedClass) {
+        setSelectedClass(response.data[0]);
+      }
+    } catch (error) {
+      console.error('获取班级列表失败:', error);
+    }
+  };
 
   useEffect(() => {
     fetchClasses();
   }, []);
 
-  const [form, setForm] = useState({
-    className: '',
-    classDescription: '',
-  });
-
-  const fetchClasses = async () => {
-    try {
-      const response = await classApi.getAll();
-      const classesWithCount = await Promise.all(
-        response.data.map(async (cls: Class) => {
-          try {
-            const studentsRes = await classApi.getStudents(cls.id);
-            return { ...cls, studentCount: studentsRes.data.length || 0 };
-          } catch {
-            return { ...cls, studentCount: 0 };
-          }
-        })
-      );
-      setClasses(classesWithCount);
-    } catch (error) {
-      console.error('获取班级列表失败:', error);
+  useEffect(() => {
+    if (selectedClass) {
+      const mockStudents: Student[] = [];
+      setStudents(mockStudents);
+    } else {
+      setStudents([]);
     }
-  };
+  }, [selectedClass]);
 
   const handleCreateClass = async () => {
     setLoading(true);
@@ -88,6 +103,11 @@ export function TeacherControlCenter() {
     }
   };
 
+  const openClassCodeModal = (cls: Class) => {
+    setSelectedClass(cls);
+    setShowClassCodeModal(true);
+  };
+
   const handleCopyCode = () => {
     if (selectedClass) {
       navigator.clipboard.writeText(selectedClass.invite_code);
@@ -96,9 +116,9 @@ export function TeacherControlCenter() {
     }
   };
 
-  const openClassCodeModal = (cls: Class) => {
-    setSelectedClass(cls);
-    setShowClassCodeModal(true);
+  const handleViewStudentDetail = (student: Student) => {
+    setSelectedStudent(student);
+    setShowStudentDetailModal(true);
   };
 
   const filteredStudents = selectedClass 
@@ -166,10 +186,10 @@ export function TeacherControlCenter() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-1">
-          <Card variant="default" className="ceramic">
-            <div className="flex items-center justify-between mb-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div>
+          <Card variant="default" className="ceramic h-[calc(100vh-320px)] flex flex-col">
+            <div className="flex items-center justify-between mb-4 px-1">
               <div className="flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-slate-500" />
                 <h2 className="text-lg font-semibold text-slate-900">班级管理</h2>
@@ -179,7 +199,7 @@ export function TeacherControlCenter() {
                 创建班级
               </Button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 overflow-y-auto flex-1 pr-1">
               {classes.map((cls) => (
                 <div
                   key={cls.id}
@@ -193,7 +213,7 @@ export function TeacherControlCenter() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-slate-900">{cls.name}</p>
-                      <p className="text-xs text-slate-500 mt-1">{cls.studentCount} 名学生</p>
+                      <p className="text-xs text-slate-500 mt-1">{cls.studentCount && cls.studentCount > 0 ? `当前有 ${cls.studentCount} 名学生` : '当前还没有学生'}</p>
                     </div>
                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openClassCodeModal(cls); }}>
                       <ClipboardList className="h-4 w-4" />
@@ -211,8 +231,8 @@ export function TeacherControlCenter() {
           </Card>
         </div>
 
-        <div className="xl:col-span-2">
-          <Card variant="default" className="ceramic overflow-hidden p-0">
+        <div>
+          <Card variant="default" className="ceramic h-[calc(100vh-320px)] flex flex-col">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Users className="h-5 w-5 text-slate-500" />
@@ -220,26 +240,28 @@ export function TeacherControlCenter() {
                   {selectedClass ? `${selectedClass.name} - 学生列表` : '所有学生'}
                 </h2>
                 {selectedClass && (
-                  <Badge variant="primary">{selectedClass.studentCount} 人</Badge>
+                  <Badge variant="primary">{selectedClass.studentCount || 0} 人</Badge>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 {selectedClass && (
-                  <Button variant="secondary" size="sm" onClick={() => openClassCodeModal(selectedClass)}>
-                    <ClipboardList className="h-4 w-4 mr-1" />
-                    邀请学生
-                  </Button>
+                  <>
+                    <Button variant="ghost" size="sm" onClick={() => openClassCodeModal(selectedClass)}>
+                      <ClipboardList className="h-4 w-4 mr-1" />
+                      邀请学生
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setShowLargeStudentListModal(true)}>
+                      <Eye className="h-4 w-4 mr-1" />
+                      全屏查看
+                    </Button>
+                  </>
                 )}
-                <Button variant="primary" size="sm" onClick={() => setShowInviteModal(true)}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  批量导入
-                </Button>
               </div>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-y-auto flex-1">
               {filteredStudents.length > 0 ? (
                 <table className="w-full">
-                  <thead className="bg-slate-50/50">
+                  <thead className="bg-slate-50/50 sticky top-0">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">姓名</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">班级</th>
@@ -267,8 +289,12 @@ export function TeacherControlCenter() {
                           </Badge>
                         </td>
                         <td className="px-6 py-4 text-right">
+                          <Button variant="secondary" size="sm" onClick={() => handleViewStudentDetail(student)}>
+                            <Eye className="h-4 w-4 mr-1" />
+                            详情
+                          </Button>
                           {student.status === 'pending' && (
-                            <Button variant="primary" size="sm">
+                            <Button variant="primary" size="sm" className="ml-2">
                               通过审核
                             </Button>
                           )}
@@ -320,45 +346,16 @@ export function TeacherControlCenter() {
         </div>
       </Modal>
 
-      <Modal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} title="批量导入学生" size="lg">
-        <div className="space-y-4">
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">
-            <ClipboardList className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-            <p className="text-slate-600 mb-2">上传 CSV 文件导入学生</p>
-            <p className="text-sm text-slate-400">支持 .csv 格式文件</p>
-          </div>
-          <div className="bg-slate-50 rounded-xl p-4">
-            <p className="text-sm font-medium text-slate-700 mb-2">CSV 格式说明：</p>
-            <p className="text-xs text-slate-500">姓名,邮箱,班级名称</p>
-            <p className="text-xs text-slate-400 mt-1">例如：张三,zhangsan@example.com,高一(1)班</p>
-          </div>
-          <div className="flex gap-4 pt-4">
-            <Button variant="secondary" className="flex-1" onClick={() => setShowInviteModal(false)}>取消</Button>
-            <Button variant="primary" className="flex-1">上传文件</Button>
-          </div>
-        </div>
-      </Modal>
-
       <Modal isOpen={showClassCodeModal} onClose={() => setShowClassCodeModal(false)} title="邀请学生" size="lg">
         {selectedClass && (
           <div className="space-y-4">
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 text-center">
-              <p className="text-sm text-slate-600 mb-4">班级邀请码</p>
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <code className="text-3xl font-bold text-indigo-600 tracking-widest">
-                  {selectedClass.invite_code}
-                </code>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleCopyCode}
-                  className="shrink-0"
-                >
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  {copied ? '已复制' : '复制'}
-                </Button>
-              </div>
+            <div className="bg-indigo-50 rounded-xl p-6 text-center">
+              <p className="text-sm text-slate-500 mb-2">班级邀请码</p>
+              <p className="text-3xl font-bold text-indigo-600 mb-2">{selectedClass.invite_code}</p>
               <p className="text-sm text-slate-500">学生可使用此邀请码加入班级 {selectedClass.name}</p>
+              <Button variant="primary" size="sm" className="mt-4" onClick={handleCopyCode}>
+                {copied ? '已复制!' : '复制邀请码'}
+              </Button>
             </div>
             <div className="bg-slate-50 rounded-xl p-4">
               <p className="text-sm font-medium text-slate-700 mb-2">邀请链接</p>
@@ -369,9 +366,9 @@ export function TeacherControlCenter() {
             <div className="bg-slate-50 rounded-xl p-4">
               <p className="text-sm font-medium text-slate-700 mb-2">使用说明：</p>
               <ul className="text-xs text-slate-500 space-y-1">
-                <li>1. 学生注册账号时输入邀请码</li>
-                <li>2. 或通过邀请链接直接注册</li>
-                <li>3. 注册后自动加入该班级</li>
+                <li>1. 学生注册账号时输入邀请码加入班级</li>
+                <li>2. 或通过邀请链接直接注册并加入班级</li>
+                <li>3. 注册后也可在"我的班级"页面输入邀请码加入</li>
               </ul>
             </div>
             <Button variant="primary" className="w-full" onClick={() => setShowClassCodeModal(false)}>
@@ -381,6 +378,136 @@ export function TeacherControlCenter() {
         )}
       </Modal>
 
+      <Modal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} title="批量导入学生" size="lg">
+        <div className="space-y-4">
+          <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">
+            <Upload className="h-12 w-12 mx-auto text-slate-300 mb-4" />
+            <p className="text-slate-500">拖拽 Excel 文件到此处上传</p>
+            <p className="text-xs text-slate-400 mt-1">支持 .xlsx, .xls 格式</p>
+          </div>
+          <Button variant="primary" className="w-full">
+            选择文件
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={showStudentDetailModal} onClose={() => setShowStudentDetailModal(false)} title="学生详情" size="md">
+        {selectedStudent && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white text-xl font-bold">
+                {selectedStudent.name[0]}
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">{selectedStudent.name}</h3>
+                <Badge variant={selectedStudent.status === 'active' ? 'success' : 'warning'}>
+                  {selectedStudent.status === 'active' ? '已激活' : '待审核'}
+                </Badge>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-600">{selectedStudent.email}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Building2 className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-600">{selectedStudent.className}</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Calendar className="h-4 w-4 text-slate-400" />
+                <span className="text-slate-600">{selectedStudent.createdAt || '未知'}</span>
+              </div>
+            </div>
+            <div className="border-t border-slate-100 pt-4">
+              <h4 className="font-medium text-slate-900 mb-2 flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                学习进度
+              </h4>
+              <p className="text-sm text-slate-500">暂无学习数据</p>
+            </div>
+            <div className="flex gap-4">
+              <Button variant="secondary" className="flex-1" onClick={() => setShowStudentDetailModal(false)}>关闭</Button>
+              {selectedStudent.status === 'pending' && (
+                <Button variant="primary" className="flex-1">通过审核</Button>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal isOpen={showLargeStudentListModal} onClose={() => setShowLargeStudentListModal(false)} title={`${selectedClass?.name || '所有学生'} - 学生列表`} size="xl">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Badge variant="primary">{filteredStudents.length} 名学生</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm">导出列表</Button>
+              <Button variant="primary" size="sm" onClick={() => setShowInviteModal(true)}>
+                <Plus className="h-4 w-4 mr-1" />
+                批量导入
+              </Button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">姓名</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">班级</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">邮箱</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">状态</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredStudents.map((student) => (
+                  <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white text-sm font-medium">
+                          {student.name[0]}
+                        </div>
+                        <span className="text-sm font-medium text-slate-900">{student.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{student.className}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{student.email}</td>
+                    <td className="px-6 py-4">
+                      <Badge variant={student.status === 'active' ? 'success' : 'warning'}>
+                        {student.status === 'active' ? '已激活' : '待审核'}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Button variant="secondary" size="sm" onClick={() => { handleViewStudentDetail(student); setShowLargeStudentListModal(false); }}>
+                        <Eye className="h-4 w-4 mr-1" />
+                        详情
+                      </Button>
+                      {student.status === 'pending' && (
+                        <Button variant="primary" size="sm" className="ml-2">
+                          通过审核
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filteredStudents.length === 0 && (
+              <div className="flex items-center justify-center py-12 text-slate-500">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 mx-auto mb-4 flex items-center justify-center">
+                    <Users className="h-8 w-8 text-slate-400" />
+                  </div>
+                  <p>暂无学生数据</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </Modal>
+
       <div>
         {copilotOpen && (
           <>
@@ -388,50 +515,32 @@ export function TeacherControlCenter() {
               className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 transition-opacity duration-300"
               onClick={() => setCopilotOpen(false)}
             />
-            <div
-              className="fixed top-0 right-0 bottom-0 w-full max-w-lg bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-out"
-            >
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                    <Sparkles className="h-5 w-5 text-white" />
+            <div className="fixed bottom-6 right-6 z-50">
+              <div className="w-80 ceramic p-4 shadow-2xl rounded-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-indigo-500" />
+                    <span className="font-medium text-slate-900">智能助手</span>
                   </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-slate-900">AI 批改助手</h2>
-                    <p className="text-sm text-slate-500">智能辅助作业批改</p>
-                  </div>
+                  <button
+                    onClick={() => setCopilotOpen(false)}
+                    className="p-1 hover:bg-slate-100 rounded-lg"
+                  >
+                    <X className="h-4 w-4 text-slate-400" />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setCopilotOpen(false)}
-                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors"
-                >
-                  <X className="h-5 w-5 text-slate-500" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-6">
-                <div className="mb-6 p-4 bg-slate-50 rounded-xl">
-                  <p className="text-sm text-slate-500">选择一个作业提交以使用 AI 批改功能</p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-4 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Wand2 className="h-4 w-4 text-indigo-600" />
-                      <span className="text-sm font-semibold text-indigo-900">AI 分析结果</span>
-                    </div>
-                    <p className="text-sm text-slate-600">选择作业后，AI 将分析学生提交内容并提供批改建议</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/50">
-                <div className="flex gap-3">
-                  <Button variant="secondary" className="flex-1" onClick={() => setCopilotOpen(false)}>
-                    取消
+                <div className="space-y-3">
+                  <Button variant="secondary" className="w-full justify-start gap-2">
+                    <FileText className="h-4 w-4" />
+                    生成教案
                   </Button>
-                  <Button variant="primary" className="flex-1" disabled>
-                    选择作业
+                  <Button variant="secondary" className="w-full justify-start gap-2">
+                    <HelpCircle className="h-4 w-4" />
+                    问题解答
+                  </Button>
+                  <Button variant="secondary" className="w-full justify-start gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    数据分析
                   </Button>
                 </div>
               </div>

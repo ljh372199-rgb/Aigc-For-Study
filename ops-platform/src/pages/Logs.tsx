@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, Badge, Button, Modal, Select, Input, Pagination } from '@/components/ui';
+import { Card, CardContent, Badge, Button, Modal, Select, Input, Pagination, Loading } from '@/components/ui';
+import { useLogsStore } from '@/stores/logsStore';
 import {
   Search,
   Filter,
@@ -14,191 +15,60 @@ import {
   Server,
 } from 'lucide-react';
 
-type LogLevel = 'ALL' | 'INFO' | 'WARN' | 'ERROR';
+type LogLevel = 'ALL' | 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
 
 interface LogEntry {
-  id: string;
+  id?: string;
   timestamp: string;
-  level: Exclude<LogLevel, 'ALL'>;
-  service: string;
+  level?: string;
+  service?: string;
   message: string;
-  traceId?: string;
-  spanId?: string;
-  userId?: string;
-  ip?: string;
-  method?: string;
-  path?: string;
-  statusCode?: number;
-  duration?: number;
-  metadata?: Record<string, any>;
+  stream?: Record<string, string>;
+  labels?: Record<string, string>;
+  metadata?: Record<string, unknown>;
 }
 
-const mockLogs: LogEntry[] = [
-  {
-    id: '1',
-    timestamp: '2024-01-15 14:32:15.234',
-    level: 'INFO',
-    service: 'api-gateway',
-    message: 'Request processed successfully',
-    traceId: 'abc123def456',
-    spanId: 'span001',
-    method: 'GET',
-    path: '/api/v1/users',
-    statusCode: 200,
-    duration: 45,
-  },
-  {
-    id: '2',
-    timestamp: '2024-01-15 14:31:42.156',
-    level: 'WARN',
-    service: 'user-service',
-    message: 'High memory usage detected: 85%',
-    traceId: 'def456ghi789',
-    spanId: 'span002',
-    metadata: { memoryUsage: 85, threshold: 80 },
-  },
-  {
-    id: '3',
-    timestamp: '2024-01-15 14:31:20.789',
-    level: 'ERROR',
-    service: 'payment-service',
-    message: 'Payment processing failed: timeout',
-    traceId: 'ghi789jkl012',
-    spanId: 'span003',
-    method: 'POST',
-    path: '/api/v1/payments',
-    statusCode: 500,
-    duration: 30000,
-    metadata: { errorCode: 'TIMEOUT', retryCount: 3 },
-  },
-  {
-    id: '4',
-    timestamp: '2024-01-15 14:30:58.321',
-    level: 'INFO',
-    service: 'auth-service',
-    message: 'User authentication successful',
-    traceId: 'jkl012mno345',
-    spanId: 'span004',
-    userId: 'user_12345',
-    method: 'POST',
-    path: '/api/v1/auth/login',
-    statusCode: 200,
-    duration: 120,
-  },
-  {
-    id: '5',
-    timestamp: '2024-01-15 14:30:45.567',
-    level: 'INFO',
-    service: 'api-gateway',
-    message: 'Health check passed',
-    traceId: 'mno345pqr678',
-    spanId: 'span005',
-  },
-  {
-    id: '6',
-    timestamp: '2024-01-15 14:30:12.890',
-    level: 'ERROR',
-    service: 'db-replica',
-    message: 'Replication lag exceeds threshold',
-    traceId: 'pqr678stu901',
-    spanId: 'span006',
-    metadata: { lag: 5000, threshold: 1000 },
-  },
-  {
-    id: '7',
-    timestamp: '2024-01-15 14:29:33.234',
-    level: 'WARN',
-    service: 'cache-service',
-    message: 'Cache miss rate increased',
-    traceId: 'stu901vwx234',
-    spanId: 'span007',
-    metadata: { missRate: 0.35, hitRate: 0.65 },
-  },
-  {
-    id: '8',
-    timestamp: '2024-01-15 14:29:15.678',
-    level: 'INFO',
-    service: 'notification-service',
-    message: 'Email sent successfully',
-    traceId: 'vwx234yza567',
-    spanId: 'span008',
-    userId: 'user_67890',
-    metadata: { emailType: 'verification', recipient: 'user@example.com' },
-  },
-  {
-    id: '9',
-    timestamp: '2024-01-15 14:28:52.123',
-    level: 'INFO',
-    service: 'api-gateway',
-    message: 'New connection established',
-    traceId: 'yza567bcd890',
-    spanId: 'span009',
-    ip: '192.168.1.100',
-    method: 'GET',
-    path: '/api/v1/products',
-    statusCode: 200,
-    duration: 78,
-  },
-  {
-    id: '10',
-    timestamp: '2024-01-15 14:28:30.456',
-    level: 'WARN',
-    service: 'storage-service',
-    message: 'Disk I/O latency elevated',
-    traceId: 'bcd890efg123',
-    spanId: 'span010',
-    metadata: { latency: 150, normalLatency: 50 },
-  },
-];
-
-function LogLevelIcon({ level }: { level: Exclude<LogLevel, 'ALL'> }) {
-  const config = {
+function LogLevelIcon({ level }: { level: string }) {
+  const config: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
     INFO: { icon: <Info size={16} />, color: 'text-accent-blue', bg: 'bg-accent-blue/10' },
     WARN: { icon: <AlertTriangle size={16} />, color: 'text-accent-yellow', bg: 'bg-accent-yellow/10' },
+    WARNING: { icon: <AlertTriangle size={16} />, color: 'text-accent-yellow', bg: 'bg-accent-yellow/10' },
     ERROR: { icon: <AlertCircle size={16} />, color: 'text-accent-red', bg: 'bg-accent-red/10' },
+    DEBUG: { icon: <Info size={16} />, color: 'text-accent-purple', bg: 'bg-accent-purple/10' },
   };
 
-  const { icon, color, bg } = config[level];
-
-  return (
-    <div className={`p-xs rounded ${bg} ${color}`}>
-      {icon}
-    </div>
-  );
+  const { icon, color, bg } = config[level] || config.INFO;
+  return <div className={`p-xs rounded ${bg} ${color}`}>{icon}</div>;
 }
 
 function LogRow({ log, onClick }: { log: LogEntry; onClick: () => void }) {
+  const formatTimestamp = (timestamp: string) => {
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+    } catch {
+      return timestamp;
+    }
+  };
+
   return (
     <div
       className="flex items-start gap-md p-md hover:bg-background-tertiary transition-colors cursor-pointer border-b border-border/50 last:border-0"
       onClick={onClick}
     >
-      <LogLevelIcon level={log.level} />
+      <LogLevelIcon level={log.level || 'INFO'} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-md mb-xs">
-          <span className="text-xs text-text-tertiary font-mono">{log.timestamp}</span>
-          <Badge variant="default" size="sm">{log.service}</Badge>
-          {log.traceId && (
-            <span className="text-xs text-text-tertiary font-mono">
-              ID: {log.traceId.slice(0, 8)}...
-            </span>
-          )}
+          <span className="text-xs text-text-tertiary font-mono">{formatTimestamp(log.timestamp)}</span>
+          <Badge variant="default" size="sm">{log.service || log.stream?.service || 'system'}</Badge>
         </div>
         <p className="text-sm text-text-primary truncate">{log.message}</p>
-        {log.method && log.path && (
-          <div className="flex items-center gap-sm mt-xs text-xs text-text-tertiary">
-            <Badge variant={log.statusCode && log.statusCode >= 400 ? 'error' : 'success'} size="sm">
-              {log.method}
-            </Badge>
-            <span>{log.path}</span>
-            {log.statusCode && (
-              <span>→ {log.statusCode}</span>
-            )}
-            {log.duration && (
-              <span>• {log.duration}ms</span>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -230,9 +100,9 @@ function LogDetailModal({
       <div className="space-y-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-md">
-            <LogLevelIcon level={log.level} />
+            <LogLevelIcon level={log.level || 'INFO'} />
             <div>
-              <p className="font-medium text-text-primary">{log.service}</p>
+              <p className="font-medium text-text-primary">{log.service || log.stream?.service || 'system'}</p>
               <p className="text-sm text-text-secondary">{log.message}</p>
             </div>
           </div>
@@ -260,67 +130,31 @@ function LogDetailModal({
         <div className="grid grid-cols-2 gap-md">
           <div className="p-md bg-background-tertiary rounded-lg">
             <p className="text-xs text-text-tertiary mb-xs">时间戳</p>
-            <p className="text-sm font-medium text-text-primary font-mono">{log.timestamp}</p>
+            <p className="text-sm font-medium text-text-primary font-mono">
+              {new Date(log.timestamp).toLocaleString('zh-CN')}
+            </p>
           </div>
           <div className="p-md bg-background-tertiary rounded-lg">
             <p className="text-xs text-text-tertiary mb-xs">级别</p>
             <Badge
               variant={
                 log.level === 'ERROR' ? 'error' :
-                log.level === 'WARN' ? 'warning' : 'info'
+                log.level === 'WARN' || log.level === 'WARNING' ? 'warning' : 'info'
               }
             >
-              {log.level}
+              {log.level || 'INFO'}
             </Badge>
           </div>
-          {log.traceId && (
+          <div className="p-md bg-background-tertiary rounded-lg">
+            <p className="text-xs text-text-tertiary mb-xs">服务</p>
+            <p className="text-sm font-medium text-text-primary">{log.service || log.stream?.service || 'N/A'}</p>
+          </div>
+          {log.stream && (
             <div className="p-md bg-background-tertiary rounded-lg">
-              <p className="text-xs text-text-tertiary mb-xs">Trace ID</p>
-              <p className="text-sm font-medium text-text-primary font-mono">{log.traceId}</p>
-            </div>
-          )}
-          {log.spanId && (
-            <div className="p-md bg-background-tertiary rounded-lg">
-              <p className="text-xs text-text-tertiary mb-xs">Span ID</p>
-              <p className="text-sm font-medium text-text-primary font-mono">{log.spanId}</p>
-            </div>
-          )}
-          {log.userId && (
-            <div className="p-md bg-background-tertiary rounded-lg">
-              <p className="text-xs text-text-tertiary mb-xs">用户 ID</p>
-              <p className="text-sm font-medium text-text-primary font-mono">{log.userId}</p>
-            </div>
-          )}
-          {log.ip && (
-            <div className="p-md bg-background-tertiary rounded-lg">
-              <p className="text-xs text-text-tertiary mb-xs">IP 地址</p>
-              <p className="text-sm font-medium text-text-primary font-mono">{log.ip}</p>
-            </div>
-          )}
-          {log.method && log.path && (
-            <>
-              <div className="p-md bg-background-tertiary rounded-lg">
-                <p className="text-xs text-text-tertiary mb-xs">请求方法</p>
-                <p className="text-sm font-medium text-text-primary">{log.method}</p>
-              </div>
-              <div className="p-md bg-background-tertiary rounded-lg">
-                <p className="text-xs text-text-tertiary mb-xs">请求路径</p>
-                <p className="text-sm font-medium text-text-primary font-mono">{log.path}</p>
-              </div>
-            </>
-          )}
-          {log.statusCode && (
-            <div className="p-md bg-background-tertiary rounded-lg">
-              <p className="text-xs text-text-tertiary mb-xs">状态码</p>
-              <Badge variant={log.statusCode >= 400 ? 'error' : 'success'}>
-                {log.statusCode}
-              </Badge>
-            </div>
-          )}
-          {log.duration && (
-            <div className="p-md bg-background-tertiary rounded-lg">
-              <p className="text-xs text-text-tertiary mb-xs">响应时间</p>
-              <p className="text-sm font-medium text-text-primary">{log.duration} ms</p>
+              <p className="text-xs text-text-tertiary mb-xs">标签</p>
+              <p className="text-sm font-medium text-text-primary font-mono">
+                {Object.entries(log.stream).map(([k, v]) => `${k}="${v}"`).join(', ')}
+              </p>
             </div>
           )}
         </div>
@@ -337,9 +171,7 @@ function LogDetailModal({
         )}
 
         <div className="flex justify-end pt-md border-t border-border">
-          <Button variant="outline" onClick={onClose}>
-            关闭
-          </Button>
+          <Button variant="outline" onClick={onClose}>关闭</Button>
         </div>
       </div>
     </Modal>
@@ -348,10 +180,7 @@ function LogDetailModal({
 
 const container = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
 
 const item = {
@@ -361,16 +190,34 @@ const item = {
 
 export function Logs() {
   const [levelFilter, setLevelFilter] = useState<LogLevel>('ALL');
-  const [serviceFilter, setServiceFilter] = useState<string>('all');
   const [timeRange, setTimeRange] = useState<string>('1h');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredLogs = mockLogs.filter((log) => {
+  const { logs, loading, error, fetchLogs, setLevel } = useLogsStore();
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
+
+  const handleSearch = () => {
+    fetchLogs({ query: searchQuery || '*' });
+  };
+
+  const handleLevelChange = (newLevel: LogLevel) => {
+    setLevel(newLevel);
+    setCurrentPage(1);
+  };
+
+  const handleServiceChange = (newService: string) => {
+    setService(newService);
+    setCurrentPage(1);
+  };
+
+  const filteredLogs = logs.filter((log) => {
     if (levelFilter !== 'ALL' && log.level !== levelFilter) return false;
-    if (serviceFilter !== 'all' && log.service !== serviceFilter) return false;
     if (searchQuery && !log.message.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
@@ -399,8 +246,6 @@ export function Logs() {
     { value: 'payment-service', label: '支付服务' },
     { value: 'cache-service', label: '缓存服务' },
     { value: 'storage-service', label: '存储服务' },
-    { value: 'notification-service', label: '通知服务' },
-    { value: 'db-replica', label: '数据库副本' },
   ];
 
   const logLevels = [
@@ -408,6 +253,7 @@ export function Logs() {
     { value: 'INFO', label: 'INFO' },
     { value: 'WARN', label: 'WARN' },
     { value: 'ERROR', label: 'ERROR' },
+    { value: 'DEBUG', label: 'DEBUG' },
   ];
 
   const timeRanges = [
@@ -419,11 +265,19 @@ export function Logs() {
   ];
 
   const levelCounts = {
-    ALL: mockLogs.length,
-    INFO: mockLogs.filter((l) => l.level === 'INFO').length,
-    WARN: mockLogs.filter((l) => l.level === 'WARN').length,
-    ERROR: mockLogs.filter((l) => l.level === 'ERROR').length,
+    ALL: filteredLogs.length,
+    INFO: filteredLogs.filter((l) => l.level === 'INFO').length,
+    WARN: filteredLogs.filter((l) => l.level === 'WARN').length,
+    ERROR: filteredLogs.filter((l) => l.level === 'ERROR').length,
   };
+
+  if (loading && logs.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loading size="lg" />
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -446,19 +300,20 @@ export function Logs() {
                   placeholder="搜索日志内容..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   className="w-full"
                 />
               </div>
               <div className="flex flex-wrap gap-md">
                 <Select
                   value={levelFilter}
-                  onChange={(v) => setLevelFilter(v as LogLevel)}
+                  onChange={(v) => handleLevelChange(v as LogLevel)}
                   options={logLevels}
                   className="w-32"
                 />
                 <Select
                   value={serviceFilter}
-                  onChange={setServiceFilter}
+                  onChange={handleServiceChange}
                   options={services}
                   className="w-40"
                 />
@@ -468,7 +323,7 @@ export function Logs() {
                   options={timeRanges}
                   className="w-32"
                 />
-                <Button variant="primary">
+                <Button variant="primary" onClick={handleSearch}>
                   <Search size={16} className="mr-xs" />
                   查询
                 </Button>
@@ -481,7 +336,7 @@ export function Logs() {
       <motion.div variants={item}>
         <div className="flex items-center gap-md">
           <button
-            onClick={() => setLevelFilter('ALL')}
+            onClick={() => handleLevelChange('ALL')}
             className={`px-md py-sm rounded-lg font-medium transition-colors ${
               levelFilter === 'ALL'
                 ? 'bg-accent-blue text-white'
@@ -491,7 +346,7 @@ export function Logs() {
             全部 ({levelCounts.ALL})
           </button>
           <button
-            onClick={() => setLevelFilter('INFO')}
+            onClick={() => handleLevelChange('INFO')}
             className={`px-md py-sm rounded-lg font-medium transition-colors ${
               levelFilter === 'INFO'
                 ? 'bg-accent-blue text-white'
@@ -502,7 +357,7 @@ export function Logs() {
             INFO ({levelCounts.INFO})
           </button>
           <button
-            onClick={() => setLevelFilter('WARN')}
+            onClick={() => handleLevelChange('WARN')}
             className={`px-md py-sm rounded-lg font-medium transition-colors ${
               levelFilter === 'WARN'
                 ? 'bg-accent-yellow text-white'
@@ -513,7 +368,7 @@ export function Logs() {
             WARN ({levelCounts.WARN})
           </button>
           <button
-            onClick={() => setLevelFilter('ERROR')}
+            onClick={() => handleLevelChange('ERROR')}
             className={`px-md py-sm rounded-lg font-medium transition-colors ${
               levelFilter === 'ERROR'
                 ? 'bg-accent-red text-white'
@@ -530,9 +385,9 @@ export function Logs() {
         <Card padding="none">
           <CardContent className="p-none">
             {paginatedLogs.length > 0 ? (
-              paginatedLogs.map((log) => (
+              paginatedLogs.map((log, index) => (
                 <LogRow
-                  key={log.id}
+                  key={log.id || `${log.timestamp}-${index}`}
                   log={log}
                   onClick={() => handleLogClick(log)}
                 />
@@ -541,6 +396,7 @@ export function Logs() {
               <div className="text-center py-xl">
                 <FileText size={48} className="mx-auto text-text-tertiary mb-md" />
                 <p className="text-text-secondary">暂无日志记录</p>
+                {error && <p className="text-text-tertiary text-sm mt-sm">错误: {error}</p>}
               </div>
             )}
           </CardContent>

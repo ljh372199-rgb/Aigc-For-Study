@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Tabs } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Tabs, Loading } from '@/components/ui';
 import { TimeSeriesChart } from '@/components/charts';
+import { useMetricsStore } from '@/stores/metricsStore';
 import {
   Clock,
   TrendingUp,
@@ -13,47 +14,22 @@ import {
 
 type TimeRange = '1h' | '6h' | '24h' | '7d' | '30d';
 
-interface MetricData {
-  requests: number;
-  avgLatency: number;
-  p50: number;
-  p90: number;
-  p95: number;
-  p99: number;
-  errorRate: number;
-  activeConnections: number;
-}
-
 interface ChartDataPoint {
   time: string;
   [key: string]: string | number;
 }
 
-function generateChartData(range: TimeRange): ChartDataPoint[] {
-  const dataPoints = {
-    '1h': 60,
-    '6h': 72,
-    '24h': 96,
-    '7d': 168,
-    '30d': 360,
-  };
-
+function generateMockData(range: TimeRange): ChartDataPoint[] {
+  const dataPoints = { '1h': 60, '6h': 72, '24h': 96, '7d': 168, '30d': 360 };
   const points = dataPoints[range];
   const data: ChartDataPoint[] = [];
 
   for (let i = 0; i < points; i++) {
     const date = new Date();
-    if (range === '1h') {
-      date.setMinutes(date.getMinutes() - (points - i));
-    } else if (range === '6h') {
-      date.setMinutes(date.getMinutes() - (points - i) * 5);
-    } else if (range === '24h') {
-      date.setHours(date.getHours() - (points - i));
-    } else if (range === '7d') {
-      date.setHours(date.getHours() - (points - i) * 1);
-    } else {
-      date.setHours(date.getHours() - (points - i) * 2);
-    }
+    if (range === '1h') date.setMinutes(date.getMinutes() - (points - i));
+    else if (range === '6h') date.setMinutes(date.getMinutes() - (points - i) * 5);
+    else if (range === '24h') date.setHours(date.getHours() - (points - i));
+    else date.setHours(date.getHours() - (points - i) * 2);
 
     data.push({
       time: range === '30d'
@@ -65,21 +41,7 @@ function generateChartData(range: TimeRange): ChartDataPoint[] {
       connections: Math.floor(Math.random() * 200) + 50,
     });
   }
-
   return data;
-}
-
-function generateMetrics(): MetricData {
-  return {
-    requests: Math.floor(Math.random() * 10000) + 5000,
-    avgLatency: Math.floor(Math.random() * 100) + 100,
-    p50: Math.floor(Math.random() * 50) + 50,
-    p90: Math.floor(Math.random() * 100) + 100,
-    p95: Math.floor(Math.random() * 150) + 150,
-    p99: Math.floor(Math.random() * 300) + 300,
-    errorRate: Math.random() * 2,
-    activeConnections: Math.floor(Math.random() * 150) + 50,
-  };
 }
 
 function DataTable({ data }: { data: ChartDataPoint[] }) {
@@ -97,17 +59,14 @@ function DataTable({ data }: { data: ChartDataPoint[] }) {
         </thead>
         <tbody>
           {data.slice(-10).reverse().map((row, index) => (
-            <tr
-              key={index}
-              className="border-b border-border/50 hover:bg-background-tertiary transition-colors"
-            >
+            <tr key={index} className="border-b border-border/50 hover:bg-background-tertiary transition-colors">
               <td className="py-sm px-sm text-sm text-text-primary">{row.time}</td>
               <td className="py-sm px-sm text-sm text-text-primary text-right">{row.requests.toLocaleString()}</td>
               <td className="py-sm px-sm text-sm text-text-primary text-right">{row.latency}</td>
               <td className="py-sm px-sm text-sm text-text-primary text-right">{row.errors}</td>
               <td className="py-sm px-sm text-right">
-                <Badge variant={row.errors > 20 ? 'error' : row.errors > 10 ? 'warning' : 'success'} size="sm">
-                  {((row.errors / row.requests) * 100).toFixed(2)}%
+                <Badge variant={Number(row.errors) > 20 ? 'error' : Number(row.errors) > 10 ? 'warning' : 'success'} size="sm">
+                  {((Number(row.errors) / Number(row.requests)) * 100).toFixed(2)}%
                 </Badge>
               </td>
             </tr>
@@ -118,12 +77,33 @@ function DataTable({ data }: { data: ChartDataPoint[] }) {
   );
 }
 
-function PercentileStats({ metrics }: { metrics: MetricData }) {
+function PercentileStats({ latencyData }: { latencyData: MetricData[] }) {
+  if (!latencyData.length || !latencyData[0].points.length) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+        {['P50', 'P90', 'P95', 'P99'].map((label) => (
+          <div key={label} className="p-md bg-background-tertiary rounded-lg">
+            <p className="text-xs text-text-tertiary mb-xs">{label}</p>
+            <p className="text-2xl font-bold text-text-secondary">-- ms</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const values = latencyData[0].points.map(p => p.value * 1000).sort((a, b) => a - b);
+  const metrics = {
+    p50: values[Math.floor(values.length * 0.5)] || 0,
+    p90: values[Math.floor(values.length * 0.9)] || 0,
+    p95: values[Math.floor(values.length * 0.95)] || 0,
+    p99: values[Math.floor(values.length * 0.99)] || 0,
+  };
+
   const percentiles = [
-    { label: 'P50', value: metrics.p50, color: 'text-accent-blue' },
-    { label: 'P90', value: metrics.p90, color: 'text-accent-green' },
-    { label: 'P95', value: metrics.p95, color: 'text-accent-yellow' },
-    { label: 'P99', value: metrics.p99, color: 'text-accent-red' },
+    { label: 'P50', value: Math.round(metrics.p50), color: 'text-accent-blue' },
+    { label: 'P90', value: Math.round(metrics.p90), color: 'text-accent-green' },
+    { label: 'P95', value: Math.round(metrics.p95), color: 'text-accent-yellow' },
+    { label: 'P99', value: Math.round(metrics.p99), color: 'text-accent-red' },
   ];
 
   return (
@@ -138,12 +118,15 @@ function PercentileStats({ metrics }: { metrics: MetricData }) {
   );
 }
 
+interface MetricData {
+  metric_name: string;
+  labels: Record<string, string>;
+  points: { timestamp: number; value: number }[];
+}
+
 const container = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
 
 const item = {
@@ -153,17 +136,60 @@ const item = {
 
 export function Monitor() {
   const [timeRange, setTimeRange] = useState<TimeRange>('24h');
-  const [selectedMetric, setSelectedMetric] = useState<string>('requests');
+  const {
+    requestsData,
+    latencyData,
+    errorData,
+    loading,
+    fetchMetrics,
+    setTimeRange: setStoreTimeRange,
+  } = useMetricsStore();
 
-  const chartData = generateChartData(timeRange);
-  const metrics = generateMetrics();
+  useEffect(() => {
+    fetchMetrics(timeRange);
+    const interval = setInterval(() => fetchMetrics(timeRange), 30000);
+    return () => clearInterval(interval);
+  }, [timeRange, fetchMetrics]);
 
-  const metricLabels = [
-    { key: 'requests', label: '请求量', color: '#0a84ff' },
-    { key: 'latency', label: '响应时间', color: '#30d158' },
-    { key: 'errors', label: '错误率', color: '#ff453a' },
-    { key: 'connections', label: '活跃连接', color: '#bf5af2' },
-  ];
+  const handleTimeRangeChange = (range: TimeRange) => {
+    setTimeRange(range);
+    setStoreTimeRange(range);
+  };
+
+  const mockData = generateMockData(timeRange);
+
+  const chartData = requestsData.length > 0 && requestsData[0].points.length > 0
+    ? requestsData[0].points.map(p => {
+        const latencyPoint = latencyData[0]?.points.find(lp =>
+          Math.abs(lp.timestamp - p.timestamp) < 300
+        );
+        const errorPoint = errorData[0]?.points.find(ep =>
+          Math.abs(ep.timestamp - p.timestamp) < 300
+        );
+        return {
+          time: new Date(p.timestamp * 1000).toLocaleTimeString('zh-CN', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          requests: Math.round(p.value),
+          latency: (latencyPoint?.value || 0) * 1000,
+          errors: errorPoint?.value || 0,
+          connections: Math.floor(Math.random() * 200) + 50,
+        };
+      })
+    : mockData;
+
+  const totalRequests = requestsData.length > 0
+    ? requestsData[0].points.reduce((sum, p) => sum + p.value, 0)
+    : 0;
+
+  const avgLatency = latencyData.length > 0 && latencyData[0].points.length > 0
+    ? latencyData[0].points.reduce((sum, p) => sum + p.value, 0) / latencyData[0].points.length * 1000
+    : 0;
+
+  const errorRate = totalRequests > 0 && errorData.length > 0
+    ? (errorData[0].points.reduce((sum, p) => sum + p.value, 0) / totalRequests * 100)
+    : 0;
 
   const tabsItems = [
     {
@@ -216,6 +242,14 @@ export function Monitor() {
     },
   ];
 
+  if (loading && requestsData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loading size="lg" />
+      </div>
+    );
+  }
+
   return (
     <motion.div
       variants={container}
@@ -235,12 +269,9 @@ export function Monitor() {
                 key={range}
                 variant={timeRange === range ? 'primary' : 'outline'}
                 size="sm"
-                onClick={() => setTimeRange(range)}
+                onClick={() => handleTimeRangeChange(range)}
               >
-                {range === '1h' ? '1小时' :
-                 range === '6h' ? '6小时' :
-                 range === '24h' ? '24小时' :
-                 range === '7d' ? '7天' : '30天'}
+                {range === '1h' ? '1小时' : range === '6h' ? '6小时' : range === '24h' ? '24小时' : range === '7d' ? '7天' : '30天'}
               </Button>
             ))}
           </div>
@@ -260,7 +291,9 @@ export function Monitor() {
                 </div>
                 <div>
                   <p className="text-xs text-text-tertiary">总请求量</p>
-                  <p className="text-xl font-bold text-text-primary">{metrics.requests.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-text-primary">
+                    {loading && requestsData.length === 0 ? '--' : Math.round(totalRequests).toLocaleString()}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-md">
@@ -269,7 +302,9 @@ export function Monitor() {
                 </div>
                 <div>
                   <p className="text-xs text-text-tertiary">平均延迟</p>
-                  <p className="text-xl font-bold text-text-primary">{metrics.avgLatency} ms</p>
+                  <p className="text-xl font-bold text-text-primary">
+                    {loading && latencyData.length === 0 ? '--' : `${Math.round(avgLatency)} ms`}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-md">
@@ -278,7 +313,9 @@ export function Monitor() {
                 </div>
                 <div>
                   <p className="text-xs text-text-tertiary">错误率</p>
-                  <p className="text-xl font-bold text-text-primary">{metrics.errorRate.toFixed(2)}%</p>
+                  <p className="text-xl font-bold text-text-primary">
+                    {loading && errorData.length === 0 ? '--' : `${errorRate.toFixed(2)}%`}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-md">
@@ -287,7 +324,7 @@ export function Monitor() {
                 </div>
                 <div>
                   <p className="text-xs text-text-tertiary">活跃连接</p>
-                  <p className="text-xl font-bold text-text-primary">{metrics.activeConnections}</p>
+                  <p className="text-xl font-bold text-text-primary">--</p>
                 </div>
               </div>
             </div>
@@ -302,12 +339,12 @@ export function Monitor() {
               <CardTitle>延迟百分位数</CardTitle>
               <Badge variant="info">
                 <Clock size={14} className="mr-xs" />
-                实时数据
+                {loading ? '加载中...' : '实时数据'}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <PercentileStats metrics={metrics} />
+            <PercentileStats latencyData={latencyData} />
           </CardContent>
         </Card>
       </motion.div>

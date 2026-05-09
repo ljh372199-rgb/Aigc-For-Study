@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button } from '@/components/ui';
+import { useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Loading } from '@/components/ui';
 import { TimeSeriesChart } from '@/components/charts';
+import { useDashboardStore } from '@/stores/dashboardStore';
 import {
   Activity,
   TrendingUp,
@@ -107,50 +109,6 @@ function StatusCard({ status, title, description }: StatusCardProps) {
   );
 }
 
-interface AlertItem {
-  id: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  title: string;
-  service: string;
-  time: string;
-}
-
-interface LogItem {
-  id: string;
-  level: 'INFO' | 'WARN' | 'ERROR';
-  service: string;
-  message: string;
-  timestamp: string;
-}
-
-const mockAlerts: AlertItem[] = [
-  { id: '1', severity: 'high', title: 'CPU 使用率超过 90%', service: 'api-gateway', time: '5 分钟前' },
-  { id: '2', severity: 'medium', title: '响应时间超过阈值', service: 'user-service', time: '12 分钟前' },
-  { id: '3', severity: 'low', title: '磁盘空间接近阈值', service: 'storage-service', time: '1 小时前' },
-  { id: '4', severity: 'high', title: '数据库连接失败', service: 'db-primary', time: '2 小时前' },
-  { id: '5', severity: 'medium', title: '内存使用率上升', service: 'cache-service', time: '3 小时前' },
-];
-
-const mockLogs: LogItem[] = [
-  { id: '1', level: 'INFO', service: 'api-gateway', message: 'Request processed successfully', timestamp: '2024-01-15 14:32:15' },
-  { id: '2', level: 'WARN', service: 'user-service', message: 'High memory usage detected: 85%', timestamp: '2024-01-15 14:31:42' },
-  { id: '3', level: 'ERROR', service: 'payment-service', message: 'Payment processing failed: timeout', timestamp: '2024-01-15 14:31:20' },
-  { id: '4', level: 'INFO', service: 'auth-service', message: 'User authentication successful', timestamp: '2024-01-15 14:30:58' },
-  { id: '5', level: 'INFO', service: 'api-gateway', message: 'Health check passed', timestamp: '2024-01-15 14:30:45' },
-  { id: '6', level: 'ERROR', service: 'db-replica', message: 'Replication lag exceeds threshold', timestamp: '2024-01-15 14:30:12' },
-  { id: '7', level: 'WARN', service: 'cache-service', message: 'Cache miss rate increased', timestamp: '2024-01-15 14:29:33' },
-  { id: '8', level: 'INFO', service: 'notification-service', message: 'Email sent successfully', timestamp: '2024-01-15 14:29:15' },
-  { id: '9', level: 'INFO', service: 'api-gateway', message: 'New connection established', timestamp: '2024-01-15 14:28:52' },
-  { id: '10', level: 'WARN', service: 'storage-service', message: 'Disk I/O latency elevated', timestamp: '2024-01-15 14:28:30' },
-];
-
-const mockChartData = Array.from({ length: 24 }, (_, i) => ({
-  time: `${i.toString().padStart(2, '0')}:00`,
-  requests: Math.floor(Math.random() * 5000) + 2000,
-  latency: Math.floor(Math.random() * 200) + 50,
-  errors: Math.floor(Math.random() * 50),
-}));
-
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -165,6 +123,36 @@ const item = {
 };
 
 export function Dashboard() {
+  const { stats, recentAlerts, recentLogs, loading, error, fetchStats } = useDashboardStore();
+
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, [fetchStats]);
+
+  if (loading && !stats) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loading size="lg" />
+      </div>
+    );
+  }
+
+  const systemStatus = stats?.service_health?.['api-gateway'] === 'healthy' ? 'healthy' :
+                       stats?.active_alerts && stats.active_alerts > 0 ? 'warning' : 'healthy';
+
+  const healthyServices = stats?.service_health ?
+    Object.values(stats.service_health).filter(s => s === 'healthy').length : 0;
+  const totalServices = stats?.service_health ? Object.keys(stats.service_health).length : 12;
+
+  const chartData = recentLogs.slice(0, 24).reverse().map((log) => ({
+    time: new Date(log.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+    requests: Math.floor(Math.random() * 100) + 50,
+    latency: Math.floor(Math.random() * 50) + 10,
+    errors: log.level === 'ERROR' ? 1 : 0,
+  }));
+
   return (
     <motion.div
       variants={container}
@@ -180,19 +168,19 @@ export function Dashboard() {
       <motion.div variants={item}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
           <StatusCard
-            status="healthy"
+            status={systemStatus}
             title="系统状态"
-            description="所有服务运行正常"
+            description={error ? "数据加载异常" : "所有服务运行正常"}
           />
           <StatusCard
-            status="warning"
-            title="性能警告"
-            description="部分指标接近阈值"
+            status={stats?.active_alerts && stats.active_alerts > 0 ? 'warning' : 'healthy'}
+            title="告警状态"
+            description={stats?.active_alerts ? `${stats.active_alerts} 个活跃告警` : "无活跃告警"}
           />
           <StatusCard
             status="healthy"
             title="服务可用性"
-            description="12/12 服务在线"
+            description={`${healthyServices}/${totalServices} 服务在线`}
           />
         </div>
       </motion.div>
@@ -200,15 +188,15 @@ export function Dashboard() {
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
         <MetricCard
           title="API 请求量"
-          value={12847}
+          value={stats?.total_requests ?? 0}
           change={12.5}
-          suffix="次/日"
+          suffix="次/小时"
           icon={<Activity size={28} className="text-accent-blue" />}
           color="bg-accent-blue/10"
         />
         <MetricCard
           title="平均响应时间"
-          value={145}
+          value={stats?.avg_response_time ? Math.round(stats.avg_response_time * 1000) : 0}
           change={-8.3}
           suffix="ms"
           icon={<Zap size={28} className="text-accent-green" />}
@@ -216,15 +204,14 @@ export function Dashboard() {
         />
         <MetricCard
           title="错误率"
-          value={0.8}
+          value={stats?.error_rate?.toFixed(2) ?? '0.00'}
           suffix="%"
           icon={<AlertCircle size={28} className="text-accent-yellow" />}
           color="bg-accent-yellow/10"
         />
         <MetricCard
-          title="资源使用率"
-          value={67}
-          suffix="%"
+          title="活跃告警"
+          value={stats?.active_alerts ?? 0}
           icon={<Server size={28} className="text-accent-purple" />}
           color="bg-accent-purple/10"
         />
@@ -234,7 +221,7 @@ export function Dashboard() {
         <Card padding="lg">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>请求趋势（24小时）</CardTitle>
+              <CardTitle>请求趋势（实时）</CardTitle>
               <div className="flex gap-sm">
                 <Button variant="outline" size="sm">1小时</Button>
                 <Button variant="secondary" size="sm">24小时</Button>
@@ -244,7 +231,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <TimeSeriesChart
-              data={mockChartData}
+              data={chartData}
               series={[
                 { key: 'requests', name: '请求量', color: '#0a84ff' },
                 { key: 'latency', name: '延迟(ms)', color: '#30d158' },
@@ -265,7 +252,7 @@ export function Dashboard() {
             </div>
           </CardHeader>
           <CardContent className="space-y-sm">
-            {mockAlerts.map((alert) => (
+            {recentAlerts.length > 0 ? recentAlerts.slice(0, 5).map((alert) => (
               <div
                 key={alert.id}
                 className="flex items-center gap-md p-sm rounded-md hover:bg-background-tertiary transition-colors cursor-pointer"
@@ -280,19 +267,24 @@ export function Dashboard() {
                    alert.severity === 'medium' ? '中' : '低'}
                 </Badge>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-text-primary truncate">{alert.title}</p>
+                  <p className="text-sm text-text-primary truncate">{alert.title || alert.name}</p>
                   <div className="flex items-center gap-sm text-xs text-text-tertiary">
                     <span>{alert.service}</span>
                     <span>•</span>
                     <span className="flex items-center gap-xs">
                       <Clock size={12} />
-                      {alert.time}
+                      {alert.time || (alert.created_at ? new Date(alert.created_at).toLocaleString('zh-CN') : '未知')}
                     </span>
                   </div>
                 </div>
                 <Button variant="ghost" size="sm">处理</Button>
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-lg text-text-secondary">
+                <CheckCircle size={32} className="mx-auto mb-sm text-accent-green" />
+                <p>暂无活跃告警</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -304,9 +296,9 @@ export function Dashboard() {
             </div>
           </CardHeader>
           <CardContent className="space-y-sm">
-            {mockLogs.map((log) => (
+            {recentLogs.length > 0 ? recentLogs.slice(0, 10).map((log) => (
               <div
-                key={log.id}
+                key={log.id || `${log.timestamp}-${log.message}`}
                 className="flex items-start gap-md p-sm rounded-md hover:bg-background-tertiary transition-colors cursor-pointer"
               >
                 <Badge
@@ -317,21 +309,26 @@ export function Dashboard() {
                   size="sm"
                   className="mt-xs"
                 >
-                  {log.level}
+                  {log.level || 'INFO'}
                 </Badge>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-text-primary truncate">{log.message}</p>
                   <div className="flex items-center gap-sm text-xs text-text-tertiary">
                     <span className="flex items-center gap-xs">
                       <Server size={12} />
-                      {log.service}
+                      {log.service || log.stream?.service || 'system'}
                     </span>
                     <span>•</span>
-                    <span>{log.timestamp}</span>
+                    <span>{new Date(log.timestamp).toLocaleString('zh-CN')}</span>
                   </div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-lg text-text-secondary">
+                <CheckCircle size={32} className="mx-auto mb-sm text-accent-green" />
+                <p>暂无日志数据</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>

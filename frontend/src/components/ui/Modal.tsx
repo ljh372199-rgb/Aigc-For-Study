@@ -36,28 +36,26 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* 陶瓷质感遮罩层 - 增强blur效果以突出陶瓷质感 */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-3xl animate-fade-in"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       
-      {/* 陶瓷质感弹窗主体 */}
       <div 
-        className={`relative w-full ${sizes[size]} ceramic rounded-2xl shadow-2xl animate-fade-in-up`}
+        className={`relative w-full ${sizes[size]} bg-white rounded-2xl shadow-2xl p-6 animate-[fadeInUp_0.3s_ease-out]`}
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-            <h2 className="text-lg font-semibold text-[#f8fafc]">{title}</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
             <button
               onClick={onClose}
-              className="p-2 text-[#64748b] hover:text-[#f8fafc] hover:bg-white/10 rounded-xl transition-all"
+              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div>{children}</div>
       </div>
     </div>
   );

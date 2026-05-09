@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Modal, Tabs } from '@/components/ui';
+import { Card, CardContent, Badge, Button, Modal, Tabs } from '@/components/ui';
 import { TimeSeriesChart } from '@/components/charts';
 import {
   Server,
@@ -10,8 +10,6 @@ import {
   MemoryStick,
   Network,
   RefreshCw,
-  Play,
-  Pause,
   Power,
   Eye,
   FileText,
@@ -20,8 +18,8 @@ import {
   Database,
   Shield,
   Mail,
-  Cloud,
   Layout,
+  AlertCircle,
 } from 'lucide-react';
 
 type ServiceStatus = 'healthy' | 'warning' | 'critical';
