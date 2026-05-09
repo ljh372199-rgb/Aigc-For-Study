@@ -5,6 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: ghcr.io/ljh372199-rgb/aigc-for-study:latest
     container_name: aigc-api
     restart: unless-stopped
     ports:

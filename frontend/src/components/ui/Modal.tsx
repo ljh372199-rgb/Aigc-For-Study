@@ -42,14 +42,14 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
       />
       
       <div 
-        className={`relative w-full ${sizes[size]} bg-white rounded-2xl shadow-2xl p-6 animate-[fadeInUp_0.3s_ease-out]`}
+        className={`relative w-full ${sizes[size]} bg-white rounded-2xl shadow-md p-6 animate-[fadeInUp_0.3s_ease-out]`}
       >
         {title && (
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
+            <h2 className="text-lg font-semibold text-zinc-900">{title}</h2>
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-colors"
             >
               <X className="h-5 w-5" />
             </button>

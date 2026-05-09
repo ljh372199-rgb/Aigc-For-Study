@@ -88,41 +88,41 @@ export function TeacherLessonPlanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 lg:p-8 space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">教案设计</h1>
-          <p className="text-slate-500">设计和管理您的教学方案</p>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-zinc-900 mb-2">教案设计</h1>
+          <p className="text-zinc-500">设计和管理您的教学方案</p>
         </div>
-        <Button variant="primary" size="lg" onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4" />
+        <Button variant="ios" size="lg" onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4" strokeWidth={1.5} />
           创建教案
         </Button>
       </div>
 
       {lessonPlans.length === 0 ? (
-        <Card variant="default" className="ceramic text-center py-16">
-          <div className="w-20 h-20 rounded-2xl bg-slate-100 mx-auto mb-6 flex items-center justify-center">
-            <FileText className="h-10 w-10 text-slate-400" />
+        <Card className="p-16 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-zinc-50 mx-auto mb-6 flex items-center justify-center">
+            <FileText className="h-10 w-10 text-zinc-400" strokeWidth={1.5} />
           </div>
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">暂无教案</h3>
-          <p className="text-slate-500 mb-6">点击上方按钮创建您的第一个教案</p>
-          <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+          <h3 className="text-xl font-semibold text-zinc-900 mb-2">暂无教案</h3>
+          <p className="text-zinc-500 mb-6">点击上方按钮创建您的第一个教案</p>
+          <Button variant="ios" onClick={() => setShowCreateModal(true)}>
+            <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
             创建教案
           </Button>
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {lessonPlans.map((plan) => (
-            <Card key={plan.id} variant="interactive" className="ceramic group overflow-hidden">
-              <div className="flex items-start justify-between mb-4">
+            <Card key={plan.id} className="overflow-hidden group hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4 px-4 pt-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-                    <FileText className="h-6 w-6 text-white" />
+                    <FileText className="h-6 w-6 text-white" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{plan.title}</h3>
+                    <h3 className="font-semibold text-zinc-900">{plan.title}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant={plan.status === 'published' ? 'success' : 'default'}>
                         {plan.status === 'published' ? '已发布' : '草稿'}
@@ -132,31 +132,31 @@ export function TeacherLessonPlanPage() {
                 </div>
               </div>
 
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <BookOpen className="h-4 w-4 text-slate-400" />
+              <div className="space-y-3 mb-4 px-4">
+                <div className="flex items-center gap-2 text-sm text-zinc-600">
+                  <BookOpen className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
                   <span>{plan.subject} - {plan.grade}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Clock className="h-4 w-4 text-slate-400" />
+                <div className="flex items-center gap-2 text-sm text-zinc-600">
+                  <Clock className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
                   <span>{plan.duration}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Target className="h-4 w-4 text-slate-400" />
+                <div className="flex items-center gap-2 text-sm text-zinc-600">
+                  <Target className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
                   <span className="line-clamp-2">{plan.objectives}</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-4 pb-4">
                 <Button variant="secondary" size="sm" className="flex-1" onClick={() => openEditModal(plan)}>
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-4 w-4" strokeWidth={1.5} />
                   编辑
                 </Button>
                 <Button variant="danger" size="sm" onClick={() => handleDelete(plan.id)}>
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
                 <Button variant="secondary" size="sm">
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
               </div>
             </Card>
@@ -173,7 +173,7 @@ export function TeacherLessonPlanPage() {
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">教案标题</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">教案标题</label>
               <Input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -181,7 +181,7 @@ export function TeacherLessonPlanPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">学科</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">学科</label>
               <Input
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
@@ -189,7 +189,7 @@ export function TeacherLessonPlanPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">年级</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">年级</label>
               <Input
                 value={form.grade}
                 onChange={(e) => setForm({ ...form, grade: e.target.value })}
@@ -197,7 +197,7 @@ export function TeacherLessonPlanPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">课时时长</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">课时时长</label>
               <Input
                 value={form.duration}
                 onChange={(e) => setForm({ ...form, duration: e.target.value })}
@@ -206,7 +206,7 @@ export function TeacherLessonPlanPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">教学目标</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">教学目标</label>
             <Textarea
               value={form.objectives}
               onChange={(e) => setForm({ ...form, objectives: e.target.value })}
@@ -215,7 +215,7 @@ export function TeacherLessonPlanPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">教学方法</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">教学方法</label>
             <Input
               value={form.teaching_method}
               onChange={(e) => setForm({ ...form, teaching_method: e.target.value })}
@@ -224,14 +224,14 @@ export function TeacherLessonPlanPage() {
           </div>
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-slate-700">教学内容</label>
+              <label className="text-sm font-medium text-zinc-700">教学内容</label>
               <Button
-                variant="secondary"
+                variant="ios"
                 size="sm"
                 onClick={handleGenerate}
                 disabled={!form.title || generating}
               >
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Sparkles className="h-4 w-4 mr-2" strokeWidth={1.5} />
                 {generating ? '生成中...' : 'AI生成'}
               </Button>
             </div>
@@ -246,7 +246,7 @@ export function TeacherLessonPlanPage() {
             <Button variant="secondary" className="flex-1" onClick={() => setShowCreateModal(false)}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleCreate}>
+            <Button variant="ios" className="flex-1" onClick={handleCreate}>
               保存
             </Button>
           </div>
@@ -262,7 +262,7 @@ export function TeacherLessonPlanPage() {
         <div className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">教案标题</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">教案标题</label>
               <Input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -270,7 +270,7 @@ export function TeacherLessonPlanPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">学科</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">学科</label>
               <Input
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
@@ -278,7 +278,7 @@ export function TeacherLessonPlanPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">年级</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">年级</label>
               <Input
                 value={form.grade}
                 onChange={(e) => setForm({ ...form, grade: e.target.value })}
@@ -286,7 +286,7 @@ export function TeacherLessonPlanPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">课时时长</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">课时时长</label>
               <Input
                 value={form.duration}
                 onChange={(e) => setForm({ ...form, duration: e.target.value })}
@@ -295,7 +295,7 @@ export function TeacherLessonPlanPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">教学目标</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">教学目标</label>
             <Textarea
               value={form.objectives}
               onChange={(e) => setForm({ ...form, objectives: e.target.value })}
@@ -304,7 +304,7 @@ export function TeacherLessonPlanPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">教学方法</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">教学方法</label>
             <Input
               value={form.teaching_method}
               onChange={(e) => setForm({ ...form, teaching_method: e.target.value })}
@@ -312,7 +312,7 @@ export function TeacherLessonPlanPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">教学内容</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">教学内容</label>
             <Textarea
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
@@ -324,7 +324,7 @@ export function TeacherLessonPlanPage() {
             <Button variant="secondary" className="flex-1" onClick={() => { setShowEditModal(false); setEditingPlan(null); }}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleUpdate}>
+            <Button variant="ios" className="flex-1" onClick={handleUpdate}>
               更新
             </Button>
           </div>

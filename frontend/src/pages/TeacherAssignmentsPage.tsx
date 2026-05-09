@@ -48,59 +48,59 @@ export function TeacherAssignmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 lg:p-8 space-y-8 animate-fade-in">
+    <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">作业管理</h1>
-          <p className="text-slate-500">发布和管理学生作业</p>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-zinc-900 mb-2">作业管理</h1>
+          <p className="text-zinc-500">发布和管理学生作业</p>
         </div>
-        <Button variant="primary" size="lg" onClick={() => setShowModal(true)}>
-          <Plus className="h-5 w-5" />
+        <Button variant="ios" size="lg" onClick={() => setShowModal(true)}>
+          <Plus className="h-5 w-5" strokeWidth={1.5} />
           发布作业
         </Button>
       </div>
 
       {assignments.length === 0 ? (
-        <Card variant="default" className="ceramic text-center py-16">
-          <div className="w-20 h-20 rounded-2xl bg-slate-100 mx-auto mb-6 flex items-center justify-center">
-            <Users className="h-10 w-10 text-slate-400" />
+        <Card className="p-8 text-center">
+          <div className="w-16 h-16 rounded-xl bg-zinc-50 mx-auto mb-6 flex items-center justify-center">
+            <Users className="h-8 w-8 text-zinc-400" strokeWidth={1.5} />
           </div>
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">暂无作业</h3>
-          <p className="text-slate-500 mb-6">点击上方按钮发布您的第一个作业</p>
-          <Button variant="primary" onClick={() => setShowModal(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+          <h3 className="text-xl font-semibold text-zinc-900 mb-2">暂无作业</h3>
+          <p className="text-zinc-500 mb-6">点击上方按钮发布您的第一个作业</p>
+          <Button variant="ios" onClick={() => setShowModal(true)}>
+            <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
             发布作业
           </Button>
         </Card>
       ) : (
-        <Card variant="default" className="ceramic overflow-hidden p-0">
+        <Card className="overflow-hidden">
           <table className="w-full">
-            <thead className="bg-slate-50">
+            <thead className="bg-zinc-50">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">作业标题</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">科目</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">截止日期</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">提交情况</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">状态</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-slate-700">操作</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-600">作业标题</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-600">科目</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-600">截止日期</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-600">提交情况</th>
+                <th className="px-6 py-4 text-left text-sm font-semibold text-zinc-600">状态</th>
+                <th className="px-6 py-4 text-right text-sm font-semibold text-zinc-600">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-zinc-100">
               {assignments.map((assignment) => (
-                <tr key={assignment.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={assignment.id} className="hover:bg-zinc-50/50 transition-colors">
                   <td className="px-6 py-4">
-                    <span className="text-slate-900 font-medium">{assignment.title}</span>
+                    <span className="text-zinc-900 font-medium">{assignment.title}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant="primary">{assignment.subject}</Badge>
+                    <Badge variant="default">{assignment.subject}</Badge>
                   </td>
-                  <td className="px-6 py-4 text-slate-500">{assignment.deadline}</td>
+                  <td className="px-6 py-4 text-zinc-500">{assignment.deadline}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-24 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(assignment.submissions / assignment.total) * 100}%` }} />
+                      <div className="w-24 h-2 bg-zinc-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 rounded-full" style={{ width: `${(assignment.submissions / assignment.total) * 100}%` }} />
                       </div>
-                      <span className="text-sm text-slate-500">{assignment.submissions}/{assignment.total}</span>
+                      <span className="text-sm text-zinc-500">{assignment.submissions}/{assignment.total}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -110,14 +110,14 @@ export function TeacherAssignmentsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="批改">
-                        <Users className="h-4 w-4" />
+                      <button className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-all" title="批改">
+                        <Users className="h-4 w-4" strokeWidth={1.5} />
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all" title="编辑">
-                        <Edit3 className="h-4 w-4" />
+                      <button className="p-2 text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 rounded-lg transition-all" title="编辑">
+                        <Edit3 className="h-4 w-4" strokeWidth={1.5} />
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" onClick={() => handleDelete(assignment.id)} title="删除">
-                        <Trash2 className="h-4 w-4" />
+                      <button className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" onClick={() => handleDelete(assignment.id)} title="删除">
+                        <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                       </button>
                     </div>
                   </td>
@@ -137,9 +137,9 @@ export function TeacherAssignmentsPage() {
             onChange={(e) => setForm({ ...form, title: e.target.value })}
           />
           <div>
-            <label className="block text-sm font-medium text-slate-500 mb-2">作业描述</label>
+            <label className="block text-sm font-medium text-zinc-600 mb-2">作业描述</label>
             <textarea 
-              className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-black placeholder-zinc-400 focus:outline-none focus:ring-zinc-900 focus:border-transparent" 
+              className="w-full bg-white border border-zinc-100 rounded-lg px-4 py-2.5 text-zinc-900 placeholder:text-zinc-400 focus:ring-1 focus:ring-zinc-300 focus:border-zinc-300 outline-none transition-all resize-none" 
               rows={3} 
               placeholder="描述作业要求..."
               value={form.description}
@@ -169,7 +169,7 @@ export function TeacherAssignmentsPage() {
           />
           <div className="flex gap-4 pt-4">
             <Button variant="secondary" className="flex-1" onClick={() => setShowModal(false)}>取消</Button>
-            <Button variant="primary" className="flex-1" onClick={handleSubmit}>发布</Button>
+            <Button variant="ios" className="flex-1" onClick={handleSubmit}>发布</Button>
           </div>
         </div>
       </Modal>

@@ -128,59 +128,59 @@ export function TeacherControlCenter() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-1">学生管理</h1>
-        <p className="text-slate-500">管理班级和学生信息</p>
+        <h1 className="text-2xl lg:text-3xl font-semibold text-zinc-900 mb-2">学生管理</h1>
+        <p className="text-zinc-500">管理班级和学生信息</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="default" className="ceramic">
+        <Card className="p-4 lg:p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-slate-500 mb-1">班级总数</p>
-              <p className="text-3xl font-bold text-slate-900">{classes.length}</p>
+              <p className="text-sm text-zinc-500 mb-1">班级总数</p>
+              <p className="text-xl lg:text-2xl font-semibold text-zinc-900">{classes.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-indigo-500" />
+            <div className="w-10 h-10 rounded-xl bg-zinc-100 flex items-center justify-center">
+              <Building2 className="h-5 w-5 text-zinc-600" strokeWidth={1.5} />
             </div>
           </div>
         </Card>
 
-        <Card variant="default" className="ceramic">
+        <Card className="p-4 lg:p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-slate-500 mb-1">学生总数</p>
-              <p className="text-3xl font-bold text-slate-900">{students.length}</p>
+              <p className="text-sm text-zinc-500 mb-1">学生总数</p>
+              <p className="text-xl lg:text-2xl font-semibold text-zinc-900">{students.length}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
-              <Users className="h-6 w-6 text-emerald-500" />
+            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+              <Users className="h-5 w-5 text-green-600" strokeWidth={1.5} />
             </div>
           </div>
         </Card>
 
-        <Card variant="default" className="ceramic">
+        <Card className="p-4 lg:p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-slate-500 mb-1">待审核</p>
-              <p className="text-3xl font-bold text-amber-500">
+              <p className="text-sm text-zinc-500 mb-1">待审核</p>
+              <p className="text-xl lg:text-2xl font-semibold text-amber-600">
                 {students.filter(s => s.status === 'pending').length}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
-              <AlertCircle className="h-6 w-6 text-amber-500" />
+            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+              <AlertCircle className="h-5 w-5 text-amber-600" strokeWidth={1.5} />
             </div>
           </div>
         </Card>
 
-        <Card variant="default" className="ceramic">
+        <Card className="p-4 lg:p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-slate-500 mb-1">活跃学生</p>
-              <p className="text-3xl font-bold text-green-500">
+              <p className="text-sm text-zinc-500 mb-1">活跃学生</p>
+              <p className="text-xl lg:text-2xl font-semibold text-green-600">
                 {students.filter(s => s.status === 'active').length}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center">
-              <Wand2 className="h-6 w-6 text-green-500" />
+            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+              <Wand2 className="h-5 w-5 text-green-600" strokeWidth={1.5} />
             </div>
           </div>
         </Card>
@@ -194,8 +194,8 @@ export function TeacherControlCenter() {
                 <Building2 className="h-5 w-5 text-slate-500" />
                 <h2 className="text-lg font-semibold text-slate-900">班级管理</h2>
               </div>
-              <Button variant="secondary" size="sm" onClick={() => setShowClassModal(true)}>
-                <Plus className="h-4 w-4 mr-1" />
+              <Button variant="ios" size="sm" onClick={() => setShowClassModal(true)}>
+                <Plus className="h-4 w-4 mr-1" strokeWidth={1.5} />
                 创建班级
               </Button>
             </div>
@@ -233,27 +233,33 @@ export function TeacherControlCenter() {
 
         <div>
           <Card variant="default" className="ceramic h-[calc(100vh-320px)] flex flex-col">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="px-6 pb-4 border-b border-zinc-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-slate-500" />
-                <h2 className="text-lg font-semibold text-slate-900">
+                <Users className="h-5 w-5 text-zinc-500" />
+                <h2 className="text-lg font-semibold text-zinc-900">
                   {selectedClass ? `${selectedClass.name} - 学生列表` : '所有学生'}
                 </h2>
                 {selectedClass && (
-                  <Badge variant="primary">{selectedClass.studentCount || 0} 人</Badge>
+                  <span className="px-2.5 py-0.5 text-sm font-medium bg-zinc-100 text-zinc-600 rounded-full">
+                    {selectedClass.studentCount || 0} 人
+                  </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 {selectedClass && (
                   <>
-                    <Button variant="ghost" size="sm" onClick={() => openClassCodeModal(selectedClass)}>
-                      <ClipboardList className="h-4 w-4 mr-1" />
-                      邀请学生
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setShowLargeStudentListModal(true)}>
-                      <Eye className="h-4 w-4 mr-1" />
-                      全屏查看
-                    </Button>
+                    {filteredStudents.length > 0 && (
+                      <Button variant="ios" size="sm" onClick={() => openClassCodeModal(selectedClass)}>
+                        <ClipboardList className="h-4 w-4 mr-1" strokeWidth={1.5} />
+                        邀请学生
+                      </Button>
+                    )}
+                    <button
+                      onClick={() => setShowLargeStudentListModal(true)}
+                      className="p-2 text-zinc-500 hover:bg-zinc-100 rounded-md transition-colors"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
                   </>
                 )}
               </div>
@@ -261,28 +267,28 @@ export function TeacherControlCenter() {
             <div className="overflow-y-auto flex-1">
               {filteredStudents.length > 0 ? (
                 <table className="w-full">
-                  <thead className="bg-slate-50/50 sticky top-0">
+                  <thead className="bg-zinc-50/50 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">姓名</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">班级</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">邮箱</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">状态</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">操作</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">姓名</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">班级</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">邮箱</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wider">状态</th>
+                      <th className="px-6 py-3 text-right text-xs font-semibold text-zinc-500 uppercase tracking-wider">操作</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-zinc-100">
                     {filteredStudents.map((student) => (
-                      <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
+                      <tr key={student.id} className="hover:bg-zinc-50/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white text-sm font-medium">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-zinc-300 to-zinc-400 flex items-center justify-center text-white text-sm font-medium">
                               {student.name[0]}
                             </div>
-                            <span className="text-sm font-medium text-slate-900">{student.name}</span>
+                            <span className="text-sm font-medium text-zinc-900">{student.name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600">{student.className}</td>
-                        <td className="px-6 py-4 text-sm text-slate-600">{student.email}</td>
+                        <td className="px-6 py-4 text-sm text-zinc-600">{student.className}</td>
+                        <td className="px-6 py-4 text-sm text-zinc-600">{student.email}</td>
                         <td className="px-6 py-4">
                           <Badge variant={student.status === 'active' ? 'success' : 'warning'}>
                             {student.status === 'active' ? '已激活' : '待审核'}
@@ -290,11 +296,11 @@ export function TeacherControlCenter() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <Button variant="secondary" size="sm" onClick={() => handleViewStudentDetail(student)}>
-                            <Eye className="h-4 w-4 mr-1" />
+                            <Eye className="h-4 w-4 mr-1" strokeWidth={1.5} />
                             详情
                           </Button>
                           {student.status === 'pending' && (
-                            <Button variant="primary" size="sm" className="ml-2">
+                            <Button variant="ios" size="sm" className="ml-2">
                               通过审核
                             </Button>
                           )}
@@ -304,17 +310,27 @@ export function TeacherControlCenter() {
                   </tbody>
                 </table>
               ) : (
-                <div className="flex items-center justify-center py-12 text-slate-500">
+                <div className="flex items-center justify-center py-24">
                   <div className="text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-slate-100 mx-auto mb-4 flex items-center justify-center">
-                      <Users className="h-8 w-8 text-slate-400" />
+                    <div className="bg-zinc-50 p-4 rounded-full ring-1 ring-zinc-100 inline-flex items-center justify-center">
+                      <Users className="h-12 w-12 text-zinc-400" strokeWidth={1.5} />
                     </div>
-                    <p>{selectedClass ? '该班级暂无学生' : '暂无学生数据'}</p>
+                    <p className="text-lg font-medium text-zinc-900 mt-4">
+                      {selectedClass ? '该班级暂无学生' : '暂无学生数据'}
+                    </p>
                     {selectedClass && (
-                      <Button variant="secondary" size="sm" className="mt-4" onClick={() => openClassCodeModal(selectedClass)}>
-                        <ClipboardList className="h-4 w-4 mr-1" />
-                        生成邀请码
-                      </Button>
+                      <>
+                        <p className="text-sm text-zinc-500 mt-1">
+                          点击下方按钮生成邀请码，邀请学生加入班级
+                        </p>
+                        <button
+                          onClick={() => openClassCodeModal(selectedClass)}
+                          className="mt-6 bg-zinc-900 text-white hover:bg-zinc-800 font-medium px-6 py-2.5 rounded-lg shadow-sm transition-colors inline-flex items-center gap-2"
+                        >
+                          <ClipboardList className="h-4 w-4" />
+                          生成邀请码
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -341,7 +357,7 @@ export function TeacherControlCenter() {
           />
           <div className="flex gap-4 pt-4">
             <Button variant="secondary" className="flex-1" onClick={() => setShowClassModal(false)} disabled={loading}>取消</Button>
-            <Button variant="primary" className="flex-1" onClick={handleCreateClass} loading={loading}>创建</Button>
+            <Button variant="ios" className="flex-1" onClick={handleCreateClass} loading={loading}>创建</Button>
           </div>
         </div>
       </Modal>
@@ -353,7 +369,7 @@ export function TeacherControlCenter() {
               <p className="text-sm text-slate-500 mb-2">班级邀请码</p>
               <p className="text-3xl font-bold text-indigo-600 mb-2">{selectedClass.invite_code}</p>
               <p className="text-sm text-slate-500">学生可使用此邀请码加入班级 {selectedClass.name}</p>
-              <Button variant="primary" size="sm" className="mt-4" onClick={handleCopyCode}>
+              <Button variant="ios" size="sm" className="mt-4" onClick={handleCopyCode}>
                 {copied ? '已复制!' : '复制邀请码'}
               </Button>
             </div>
@@ -371,7 +387,7 @@ export function TeacherControlCenter() {
                 <li>3. 注册后也可在"我的班级"页面输入邀请码加入</li>
               </ul>
             </div>
-            <Button variant="primary" className="w-full" onClick={() => setShowClassCodeModal(false)}>
+            <Button variant="ios" className="w-full" onClick={() => setShowClassCodeModal(false)}>
               关闭
             </Button>
           </div>
@@ -385,7 +401,7 @@ export function TeacherControlCenter() {
             <p className="text-slate-500">拖拽 Excel 文件到此处上传</p>
             <p className="text-xs text-slate-400 mt-1">支持 .xlsx, .xls 格式</p>
           </div>
-          <Button variant="primary" className="w-full">
+          <Button variant="ios" className="w-full">
             选择文件
           </Button>
         </div>
@@ -429,7 +445,7 @@ export function TeacherControlCenter() {
             <div className="flex gap-4">
               <Button variant="secondary" className="flex-1" onClick={() => setShowStudentDetailModal(false)}>关闭</Button>
               {selectedStudent.status === 'pending' && (
-                <Button variant="primary" className="flex-1">通过审核</Button>
+                <Button variant="ios" className="flex-1">通过审核</Button>
               )}
             </div>
           </div>
@@ -444,8 +460,8 @@ export function TeacherControlCenter() {
             </div>
             <div className="flex items-center gap-2">
               <Button variant="secondary" size="sm">导出列表</Button>
-              <Button variant="primary" size="sm" onClick={() => setShowInviteModal(true)}>
-                <Plus className="h-4 w-4 mr-1" />
+              <Button variant="ios" size="sm" onClick={() => setShowInviteModal(true)}>
+                <Plus className="h-4 w-4 mr-1" strokeWidth={1.5} />
                 批量导入
               </Button>
             </div>
@@ -481,11 +497,11 @@ export function TeacherControlCenter() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Button variant="secondary" size="sm" onClick={() => { handleViewStudentDetail(student); setShowLargeStudentListModal(false); }}>
-                        <Eye className="h-4 w-4 mr-1" />
+                        <Eye className="h-4 w-4 mr-1" strokeWidth={1.5} />
                         详情
                       </Button>
                       {student.status === 'pending' && (
-                        <Button variant="primary" size="sm" className="ml-2">
+                        <Button variant="ios" size="sm" className="ml-2">
                           通过审核
                         </Button>
                       )}

@@ -1,26 +1,25 @@
-import type { HTMLAttributes } from 'react';
+import type { ReactNode } from 'react';
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'primary' | 'secondary';
+type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'primary' | 'error';
 
-interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+interface BadgeProps {
+  children: ReactNode;
   variant?: BadgeVariant;
+  className?: string;
 }
 
-export function Badge({ variant = 'default', className = '', children, ...props }: BadgeProps) {
+export function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
   const variants = {
-    default: 'bg-[#334155] text-[#94a3b8]',
-    success: 'bg-[#10b981]/20 text-[#10b981]',
-    warning: 'bg-[#f59e0b]/20 text-[#f59e0b]',
-    error: 'bg-[#ef4444]/20 text-[#ef4444]',
-    primary: 'bg-[#6366f1]/20 text-[#6366f1]',
-    secondary: 'bg-slate-200/60 text-slate-600',
+    default: 'bg-zinc-100 text-zinc-600',
+    success: 'bg-green-50 text-green-600',
+    warning: 'bg-amber-50 text-amber-600',
+    danger: 'bg-red-50 text-red-600',
+    primary: 'bg-zinc-100 text-zinc-600',
+    error: 'bg-red-50 text-red-600',
   };
-  
+
   return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]} ${className}`}
-      {...props}
-    >
+    <span className={`inline-flex items-center px-2.5 py-0.5 text-sm font-medium rounded-full ${variants[variant]} ${className}`}>
       {children}
     </span>
   );

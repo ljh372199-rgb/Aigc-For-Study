@@ -38,7 +38,7 @@ function getErrorMessage(err: any): string {
 function createMockUser(role: 'student' | 'teacher'): User {
   return {
     id: localStorage.getItem('user_id') || `mock-${role}`,
-    username: localStorage.getItem('username') || (role === 'student' ? 'Student User' : 'Teacher User'),
+    username: localStorage.getItem('username') || localStorage.getItem('user_email')?.split('@')[0] || (role === 'student' ? 'Student User' : 'Teacher User'),
     email: localStorage.getItem('user_email') || `${role}@example.com`,
     role,
     createdAt: new Date().toISOString(),
@@ -139,6 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       localStorage.setItem(MOCK_ROLE_KEY, userData.role);
+      localStorage.setItem('username', userData.username);
+      localStorage.setItem('user_id', userData.id);
+      localStorage.setItem('user_email', userData.email);
       setState((prev) => ({ ...prev, user: userData, loading: false }));
       return { success: true, user: userData };
     } catch (err: any) {
@@ -165,6 +168,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(MOCK_ROLE_KEY);
+    localStorage.removeItem('username');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_email');
     setState({ user: null, loading: false, error: null });
     navigate('/');
   }, [navigate]);

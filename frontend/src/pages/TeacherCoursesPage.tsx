@@ -102,87 +102,81 @@ export function TeacherCoursesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 lg:p-8 space-y-6 animate-fade-in">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">课程管理</h1>
-          <p className="text-slate-500">管理您的课程资源</p>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-zinc-900 mb-2">课程管理</h1>
+          <p className="text-zinc-500">管理您的课程资源</p>
         </div>
-        <Button variant="primary" size="lg" onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4" />
+        <Button variant="ios" size="lg" onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4" strokeWidth={1.5} />
           创建课程
         </Button>
       </div>
 
       <div className="relative max-w-md">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400" strokeWidth={1.5} />
         <input
           type="text"
           placeholder="搜索课程..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-black placeholder-zinc-400 focus:outline-none focus:ring-zinc-900 focus:border-transparent"
+          className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-100 rounded-xl text-zinc-900 placeholder:text-zinc-400 focus:ring-1 focus:ring-zinc-300 focus:border-zinc-300 outline-none transition-all"
         />
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-500 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-zinc-200 border-t-zinc-900 rounded-full animate-spin" />
         </div>
       ) : filteredCourses.length === 0 ? (
-        <Card variant="default" className="ceramic text-center py-12">
-          <div className="w-16 h-16 rounded-2xl bg-slate-100 mx-auto mb-4 flex items-center justify-center">
-            <BookOpen className="h-8 w-8 text-slate-400" />
+        <Card className="p-8 text-center">
+          <div className="w-14 h-14 rounded-xl bg-zinc-50 mx-auto mb-4 flex items-center justify-center">
+            <BookOpen className="h-7 w-7 text-zinc-400" strokeWidth={1.5} />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">暂无课程</h3>
-          <p className="text-slate-500">点击上方按钮创建您的第一门课程</p>
+          <h3 className="text-lg font-semibold text-zinc-900 mb-2">暂无课程</h3>
+          <p className="text-zinc-500">点击上方按钮创建您的第一门课程</p>
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCourses.map((course) => (
-            <Card key={course.id} variant="interactive" className="ceramic group overflow-hidden">
-              <div className="aspect-video bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
+            <Card key={course.id} className="overflow-hidden group hover:shadow-md transition-shadow">
+              <div className="aspect-video bg-gradient-to-br from-zinc-100 to-zinc-200 rounded-xl mb-4 flex items-center justify-center relative overflow-hidden">
                 {course.cover_image ? (
                   <img src={course.cover_image} alt={course.title} className="w-full h-full object-cover" />
                 ) : (
-                  <BookOpen className="h-12 w-12 text-white/50" />
+                  <BookOpen className="h-12 w-12 text-zinc-300" strokeWidth={1.5} />
                 )}
               </div>
 
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex items-start justify-between mb-3 px-4">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-slate-900 line-clamp-1">
+                  <h3 className="text-lg font-semibold text-zinc-900 line-clamp-1">
                     {course.title}
                   </h3>
-                  <p className="text-sm text-slate-500 line-clamp-2 mt-1">
+                  <p className="text-sm text-zinc-500 line-clamp-2 mt-1">
                     {course.description}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-slate-500 mb-4">
-                {course.teacher_name && (
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    {course.teacher_name}
-                  </div>
-                )}
+              <div className="flex items-center gap-4 text-sm text-zinc-500 mb-4 px-4">
                 {course.student_count !== undefined && (
                   <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
+                    <Users className="h-4 w-4" strokeWidth={1.5} />
                     {course.student_count} 人学习
                   </div>
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-4 pb-4">
                 <Button
                   variant="secondary"
                   size="sm"
                   className="flex-1"
                   onClick={() => openEditModal(course)}
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-4 w-4" strokeWidth={1.5} />
                   编辑
                 </Button>
                 <Button
@@ -190,10 +184,10 @@ export function TeacherCoursesPage() {
                   size="sm"
                   onClick={() => handleDelete(course.id)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
                 <Button variant="secondary" size="sm">
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
               </div>
             </Card>
@@ -209,7 +203,7 @@ export function TeacherCoursesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">课程名称</label>
+            <label className="text-sm font-medium text-zinc-600 mb-2 block">课程名称</label>
             <Input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -217,7 +211,7 @@ export function TeacherCoursesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">课程描述</label>
+            <label className="text-sm font-medium text-zinc-600 mb-2 block">课程描述</label>
             <Textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -226,7 +220,7 @@ export function TeacherCoursesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">封面图片 URL（可选）</label>
+            <label className="text-sm font-medium text-zinc-600 mb-2 block">封面图片 URL（可选）</label>
             <Input
               value={form.cover_image}
               onChange={(e) => setForm({ ...form, cover_image: e.target.value })}
@@ -237,7 +231,7 @@ export function TeacherCoursesPage() {
             <Button variant="secondary" className="flex-1" onClick={() => setShowCreateModal(false)}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleCreate}>
+            <Button variant="ios" className="flex-1" onClick={handleCreate}>
               创建
             </Button>
           </div>
@@ -252,7 +246,7 @@ export function TeacherCoursesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">课程名称</label>
+            <label className="text-sm font-medium text-zinc-600 mb-2 block">课程名称</label>
             <Input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -260,7 +254,7 @@ export function TeacherCoursesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">课程描述</label>
+            <label className="text-sm font-medium text-zinc-600 mb-2 block">课程描述</label>
             <Textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -269,7 +263,7 @@ export function TeacherCoursesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">封面图片 URL（可选）</label>
+            <label className="text-sm font-medium text-zinc-600 mb-2 block">封面图片 URL（可选）</label>
             <Input
               value={form.cover_image}
               onChange={(e) => setForm({ ...form, cover_image: e.target.value })}
@@ -280,7 +274,7 @@ export function TeacherCoursesPage() {
             <Button variant="secondary" className="flex-1" onClick={() => { setShowEditModal(false); setEditingCourse(null); }}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleUpdate}>
+            <Button variant="ios" className="flex-1" onClick={handleUpdate}>
               更新
             </Button>
           </div>

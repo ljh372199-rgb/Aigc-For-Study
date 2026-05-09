@@ -91,38 +91,38 @@ export function TeacherResourcesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 lg:p-8 space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">学习资源管理</h1>
-          <p className="text-slate-500">管理和分享教学资源</p>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-zinc-900 mb-2">学习资源管理</h1>
+          <p className="text-zinc-500">管理和分享教学资源</p>
         </div>
-        <Button variant="primary" size="lg" onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4" />
+        <Button variant="ios" size="lg" onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4" strokeWidth={1.5} />
           上传资源
         </Button>
       </div>
 
       <div className="relative max-w-md">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-400" strokeWidth={1.5} />
         <input
           type="text"
           placeholder="搜索资源..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-black placeholder-zinc-400 focus:outline-none focus:ring-zinc-900 focus:border-transparent"
+          className="w-full pl-12 pr-4 py-3 bg-white border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-zinc-900 focus:border-transparent"
         />
       </div>
 
       {filteredResources.length === 0 ? (
-      <Card variant="default" className="ceramic text-center py-16">
-        <div className="w-20 h-20 rounded-2xl bg-slate-100 mx-auto mb-6 flex items-center justify-center">
-          <FileText className="h-10 w-10 text-slate-400" />
+      <Card className="p-16 text-center">
+        <div className="w-20 h-20 rounded-2xl bg-zinc-50 mx-auto mb-6 flex items-center justify-center">
+          <FileText className="h-10 w-10 text-zinc-400" strokeWidth={1.5} />
         </div>
-        <h3 className="text-xl font-semibold text-slate-900 mb-2">暂无资源</h3>
-        <p className="text-slate-500 mb-6">点击上方按钮上传您的第一个资源</p>
-        <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+        <h3 className="text-xl font-semibold text-zinc-900 mb-2">暂无资源</h3>
+        <p className="text-zinc-500 mb-6">点击上方按钮上传您的第一个资源</p>
+        <Button variant="ios" onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
           上传资源
         </Button>
       </Card>
@@ -131,36 +131,36 @@ export function TeacherResourcesPage() {
         {filteredResources.map((resource) => {
           const TypeIcon = typeIcons[resource.type];
           return (
-            <Card key={resource.id} variant="interactive" className="ceramic group overflow-hidden">
-              <div className="flex items-start justify-between mb-4">
+            <Card key={resource.id} className="overflow-hidden group hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4 px-4 pt-4">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${typeColors[resource.type]} flex items-center justify-center`}>
-                  <TypeIcon className="h-6 w-6 text-white" />
+                  <TypeIcon className="h-6 w-6 text-white" strokeWidth={1.5} />
                 </div>
                 <Badge variant="default">{resource.category}</Badge>
               </div>
 
-              <h3 className="font-semibold text-slate-900 mb-2 line-clamp-1">{resource.title}</h3>
-              <p className="text-sm text-slate-500 line-clamp-2 mb-4">{resource.description}</p>
+              <h3 className="font-semibold text-zinc-900 mb-2 line-clamp-1 px-4">{resource.title}</h3>
+              <p className="text-sm text-zinc-500 line-clamp-2 mb-4 px-4">{resource.description}</p>
 
-              <div className="flex items-center justify-between text-sm text-slate-400 mb-4">
+              <div className="flex items-center justify-between text-sm text-zinc-400 mb-4 px-4">
                 <span>{resource.uploaded_at}</span>
                 {resource.size && <span>{resource.size}</span>}
               </div>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1 text-sm text-slate-500">
-                  <Download className="h-4 w-4" />
+              <div className="flex items-center justify-between px-4 pb-4">
+                <div className="flex items-center gap-1 text-sm text-zinc-500">
+                  <Download className="h-4 w-4" strokeWidth={1.5} />
                   <span>{resource.downloads} 下载</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="secondary" size="sm" onClick={() => openEditModal(resource)}>
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                   <Button variant="danger" size="sm" onClick={() => handleDelete(resource.id)}>
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                   <Button variant="secondary" size="sm">
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                   </Button>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export function TeacherResourcesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">资源名称</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">资源名称</label>
             <Input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -186,7 +186,7 @@ export function TeacherResourcesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">资源类型</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">资源类型</label>
             <div className="flex gap-2">
               {(['document', 'image', 'video', 'link'] as const).map((type) => {
                 const TypeIcon = typeIcons[type];
@@ -198,11 +198,11 @@ export function TeacherResourcesPage() {
                     className={`flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
                       form.type === type
                         ? 'border-indigo-500 bg-indigo-50'
-                        : 'border-slate-200 hover:border-slate-300'
+                        : 'border-zinc-200 hover:border-zinc-300'
                     }`}
                   >
-                    <TypeIcon className={`h-5 w-5 ${form.type === type ? 'text-indigo-600' : 'text-slate-400'}`} />
-                    <span className={`text-xs font-medium ${form.type === type ? 'text-indigo-600' : 'text-slate-600'}`}>
+                    <TypeIcon className={`h-5 w-5 ${form.type === type ? 'text-indigo-600' : 'text-zinc-400'}`} strokeWidth={1.5} />
+                    <span className={`text-xs font-medium ${form.type === type ? 'text-indigo-600' : 'text-zinc-600'}`}>
                       {type === 'document' ? '文档' : type === 'image' ? '图片' : type === 'video' ? '视频' : '链接'}
                     </span>
                   </button>
@@ -211,7 +211,7 @@ export function TeacherResourcesPage() {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">分类</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">分类</label>
             <Input
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -219,7 +219,7 @@ export function TeacherResourcesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">描述</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">描述</label>
             <Textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -229,7 +229,7 @@ export function TeacherResourcesPage() {
           </div>
           {form.type === 'link' && (
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">链接地址</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">链接地址</label>
               <Input
                 value={form.url}
                 onChange={(e) => setForm({ ...form, url: e.target.value })}
@@ -238,17 +238,17 @@ export function TeacherResourcesPage() {
             </div>
           )}
           {form.type !== 'link' && (
-            <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">
-              <Upload className="h-10 w-10 text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-600 mb-2">点击或拖拽文件到此处上传</p>
-              <p className="text-sm text-slate-400">支持 PDF, DOC, PNG, JPG, MP4 等格式</p>
+            <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center">
+              <Upload className="h-10 w-10 text-zinc-400 mx-auto mb-3" strokeWidth={1.5} />
+              <p className="text-zinc-600 mb-2">点击或拖拽文件到此处上传</p>
+              <p className="text-sm text-zinc-400">支持 PDF, DOC, PNG, JPG, MP4 等格式</p>
             </div>
           )}
           <div className="flex gap-4 pt-4">
             <Button variant="secondary" className="flex-1" onClick={() => setShowCreateModal(false)}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleCreate}>
+            <Button variant="ios" className="flex-1" onClick={handleCreate}>
               上传
             </Button>
           </div>
@@ -263,7 +263,7 @@ export function TeacherResourcesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">资源名称</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">资源名称</label>
             <Input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -271,7 +271,7 @@ export function TeacherResourcesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">分类</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">分类</label>
             <Input
               value={form.category}
               onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -279,7 +279,7 @@ export function TeacherResourcesPage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">描述</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">描述</label>
             <Textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -289,7 +289,7 @@ export function TeacherResourcesPage() {
           </div>
           {editingResource?.type === 'link' && (
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">链接地址</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">链接地址</label>
               <Input
                 value={form.url}
                 onChange={(e) => setForm({ ...form, url: e.target.value })}
@@ -301,7 +301,7 @@ export function TeacherResourcesPage() {
             <Button variant="secondary" className="flex-1" onClick={() => { setShowEditModal(false); setEditingResource(null); }}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleUpdate}>
+            <Button variant="ios" className="flex-1" onClick={handleUpdate}>
               更新
             </Button>
           </div>

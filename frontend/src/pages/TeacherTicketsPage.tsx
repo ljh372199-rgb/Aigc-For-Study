@@ -134,44 +134,44 @@ export function TeacherTicketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 lg:p-8 space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">任务工单管理</h1>
-          <p className="text-slate-500">管理和创建教学任务工单</p>
+          <h1 className="text-2xl lg:text-3xl font-semibold text-zinc-900 mb-2">任务工单管理</h1>
+          <p className="text-zinc-500">管理和创建教学任务工单</p>
         </div>
-        <Button variant="primary" size="lg" onClick={() => setShowCreateModal(true)}>
-          <Plus className="h-4 w-4" />
+        <Button variant="ios" size="lg" onClick={() => setShowCreateModal(true)}>
+          <Plus className="h-4 w-4" strokeWidth={1.5} />
           创建工单
         </Button>
       </div>
 
       {tickets.length === 0 ? (
-        <Card variant="default" className="ceramic text-center py-16">
-          <div className="w-20 h-20 rounded-2xl bg-slate-100 mx-auto mb-6 flex items-center justify-center">
-            <FileText className="h-10 w-10 text-slate-400" />
+        <Card className="p-16 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-zinc-50 mx-auto mb-6 flex items-center justify-center">
+            <FileText className="h-10 w-10 text-zinc-400" strokeWidth={1.5} />
           </div>
-          <h3 className="text-xl font-semibold text-slate-900 mb-2">暂无工单</h3>
-          <p className="text-slate-500 mb-6">点击上方按钮创建您的第一个任务工单</p>
-          <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+          <h3 className="text-xl font-semibold text-zinc-900 mb-2">暂无工单</h3>
+          <p className="text-zinc-500 mb-6">点击上方按钮创建您的第一个任务工单</p>
+          <Button variant="ios" onClick={() => setShowCreateModal(true)}>
+            <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
             创建工单
           </Button>
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           {tickets.map((ticket) => (
-            <Card key={ticket.id} variant="interactive" className="ceramic group">
-              <div className="flex items-start justify-between mb-4">
+            <Card key={ticket.id} className="group hover:shadow-md transition-shadow">
+              <div className="flex items-start justify-between mb-4 px-4 pt-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center">
-                    <FileText className="h-6 w-6 text-white" />
+                    <FileText className="h-6 w-6 text-white" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 line-clamp-1">{ticket.task_name}</h3>
-                    <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+                    <h3 className="font-semibold text-zinc-900 line-clamp-1">{ticket.task_name}</h3>
+                    <div className="flex items-center gap-3 mt-1 text-sm text-zinc-500">
                       <span className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
+                        <Clock className="h-4 w-4" strokeWidth={1.5} />
                         {ticket.hours} 学时
                       </span>
                       <span>{ticket.class_name}</span>
@@ -180,27 +180,27 @@ export function TeacherTicketsPage() {
                 </div>
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <User className="h-4 w-4 text-slate-400" />
+              <div className="space-y-2 mb-4 px-4">
+                <div className="flex items-center gap-2 text-sm text-zinc-600">
+                  <User className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
                   <span>{ticket.student_name}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <BookOpen className="h-4 w-4 text-slate-400" />
+                <div className="flex items-center gap-2 text-sm text-zinc-600">
+                  <BookOpen className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
                   <span className="line-clamp-2">{ticket.task_requirement}</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-4 pb-4">
                 <Button variant="secondary" size="sm" className="flex-1" onClick={() => openDetailModal(ticket)}>
-                  <Edit className="h-4 w-4 mr-1" />
+                  <Edit className="h-4 w-4 mr-1" strokeWidth={1.5} />
                   编辑
                 </Button>
                 <Button variant="danger" size="sm" onClick={() => handleDelete(ticket.id)}>
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
                 <Button variant="secondary" size="sm">
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                 </Button>
               </div>
             </Card>
@@ -217,7 +217,7 @@ export function TeacherTicketsPage() {
         <div className="space-y-4 max-h-[80vh] overflow-y-auto">
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">任务名称</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">任务名称</label>
               <Input
                 value={form.task_name}
                 onChange={(e) => setForm({ ...form, task_name: e.target.value })}
@@ -225,7 +225,7 @@ export function TeacherTicketsPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">学时</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">学时</label>
               <Input
                 type="number"
                 value={form.hours}
@@ -235,7 +235,7 @@ export function TeacherTicketsPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">班级</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">班级</label>
               <Input
                 value={form.class_name}
                 onChange={(e) => setForm({ ...form, class_name: e.target.value })}
@@ -246,7 +246,7 @@ export function TeacherTicketsPage() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">学生姓名</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">学生姓名</label>
               <Input
                 value={form.student_name}
                 onChange={(e) => setForm({ ...form, student_name: e.target.value })}
@@ -254,7 +254,7 @@ export function TeacherTicketsPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">小组成员</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">小组成员</label>
               <Input
                 value={form.group_members}
                 onChange={(e) => setForm({ ...form, group_members: e.target.value })}
@@ -265,7 +265,7 @@ export function TeacherTicketsPage() {
 
           <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">使用工具</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">使用工具</label>
               <Input
                 value={form.tools}
                 onChange={(e) => setForm({ ...form, tools: e.target.value })}
@@ -273,7 +273,7 @@ export function TeacherTicketsPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">学习场地</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">学习场地</label>
               <Input
                 value={form.learning_location}
                 onChange={(e) => setForm({ ...form, learning_location: e.target.value })}
@@ -281,7 +281,7 @@ export function TeacherTicketsPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">日期</label>
+              <label className="text-sm font-medium text-zinc-700 mb-2 block">日期</label>
               <Input
                 type="date"
                 value={form.date}
@@ -291,7 +291,7 @@ export function TeacherTicketsPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">任务需求</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">任务需求</label>
             <Textarea
               value={form.task_requirement}
               onChange={(e) => setForm({ ...form, task_requirement: e.target.value })}
@@ -301,7 +301,7 @@ export function TeacherTicketsPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">任务目的</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">任务目的</label>
             <Textarea
               value={form.task_objective}
               onChange={(e) => setForm({ ...form, task_objective: e.target.value })}
@@ -311,7 +311,7 @@ export function TeacherTicketsPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-slate-700 mb-2 block">查阅资料</label>
+            <label className="text-sm font-medium text-zinc-700 mb-2 block">查阅资料</label>
             <Textarea
               value={form.reference_materials}
               onChange={(e) => setForm({ ...form, reference_materials: e.target.value })}
@@ -322,14 +322,14 @@ export function TeacherTicketsPage() {
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-slate-700">计划与决策</label>
+              <label className="text-sm font-medium text-zinc-700">计划与决策</label>
               <Button
-                variant="secondary"
+                variant="ios"
                 size="sm"
                 onClick={handleGenerate}
                 disabled={generating}
               >
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Sparkles className="h-4 w-4 mr-2" strokeWidth={1.5} />
                 {generating ? '生成中...' : 'AI生成'}
               </Button>
             </div>
@@ -345,7 +345,7 @@ export function TeacherTicketsPage() {
             <Button variant="secondary" className="flex-1" onClick={() => setShowCreateModal(false)}>
               取消
             </Button>
-            <Button variant="primary" className="flex-1" onClick={handleCreate}>
+            <Button variant="ios" className="flex-1" onClick={handleCreate}>
               创建
             </Button>
           </div>
@@ -362,8 +362,8 @@ export function TeacherTicketsPage() {
           <div className="space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">{selectedTicket.task_name}</h3>
-                <div className="flex items-center gap-3 mt-2 text-sm text-slate-500">
+                <h3 className="text-lg font-semibold text-zinc-900">{selectedTicket.task_name}</h3>
+                <div className="flex items-center gap-3 mt-2 text-sm text-zinc-500">
                   <span>{selectedTicket.hours} 学时</span>
                   <span>{selectedTicket.class_name}</span>
                   <span>{selectedTicket.date}</span>
@@ -374,68 +374,68 @@ export function TeacherTicketsPage() {
                 size="sm"
                 onClick={() => handleDelete(selectedTicket.id)}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                 删除
               </Button>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-slate-50 rounded-xl p-4">
-                <div className="text-sm font-medium text-slate-700 mb-2">学生信息</div>
+              <div className="bg-zinc-50 rounded-xl p-4">
+                <div className="text-sm font-medium text-zinc-700 mb-2">学生信息</div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-slate-400" />
-                    <span className="text-sm text-slate-600">{selectedTicket.student_name}</span>
+                    <User className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
+                    <span className="text-sm text-zinc-600">{selectedTicket.student_name}</span>
                   </div>
-                  <div className="text-sm text-slate-600">
-                    <span className="text-slate-400">小组成员：</span>{selectedTicket.group_members}
+                  <div className="text-sm text-zinc-600">
+                    <span className="text-zinc-400">小组成员：</span>{selectedTicket.group_members}
                   </div>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-xl p-4">
-                <div className="text-sm font-medium text-slate-700 mb-2">学习环境</div>
+              <div className="bg-zinc-50 rounded-xl p-4">
+                <div className="text-sm font-medium text-zinc-700 mb-2">学习环境</div>
                 <div className="space-y-2">
-                  <div className="text-sm text-slate-600">
-                    <span className="text-slate-400">使用工具：</span>{selectedTicket.tools}
+                  <div className="text-sm text-zinc-600">
+                    <span className="text-zinc-400">使用工具：</span>{selectedTicket.tools}
                   </div>
-                  <div className="text-sm text-slate-600">
-                    <span className="text-slate-400">学习场地：</span>{selectedTicket.learning_location}
+                  <div className="text-sm text-zinc-600">
+                    <span className="text-zinc-400">学习场地：</span>{selectedTicket.learning_location}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4">
-              <div className="text-sm font-medium text-slate-700 mb-2">任务需求</div>
-              <p className="text-slate-600 whitespace-pre-wrap">{selectedTicket.task_requirement}</p>
+            <div className="bg-zinc-50 rounded-xl p-4">
+              <div className="text-sm font-medium text-zinc-700 mb-2">任务需求</div>
+              <p className="text-zinc-600 whitespace-pre-wrap">{selectedTicket.task_requirement}</p>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4">
-              <div className="text-sm font-medium text-slate-700 mb-2">任务目的</div>
-              <p className="text-slate-600 whitespace-pre-wrap">{selectedTicket.task_objective}</p>
+            <div className="bg-zinc-50 rounded-xl p-4">
+              <div className="text-sm font-medium text-zinc-700 mb-2">任务目的</div>
+              <p className="text-zinc-600 whitespace-pre-wrap">{selectedTicket.task_objective}</p>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4">
-              <div className="text-sm font-medium text-slate-700 mb-2">查阅资料</div>
-              <p className="text-slate-600 whitespace-pre-wrap">{selectedTicket.reference_materials}</p>
+            <div className="bg-zinc-50 rounded-xl p-4">
+              <div className="text-sm font-medium text-zinc-700 mb-2">查阅资料</div>
+              <p className="text-zinc-600 whitespace-pre-wrap">{selectedTicket.reference_materials}</p>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4">
-              <div className="text-sm font-medium text-slate-700 mb-2">计划与决策</div>
-              <p className="text-slate-600 whitespace-pre-wrap">{selectedTicket.plan_decision}</p>
+            <div className="bg-zinc-50 rounded-xl p-4">
+              <div className="text-sm font-medium text-zinc-700 mb-2">计划与决策</div>
+              <p className="text-zinc-600 whitespace-pre-wrap">{selectedTicket.plan_decision}</p>
             </div>
 
-            <div className="border-t border-slate-200 pt-4">
+            <div className="border-t border-zinc-200 pt-4">
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-2 block">任务名称</label>
+                  <label className="text-sm font-medium text-zinc-700 mb-2 block">任务名称</label>
                   <Input
                     value={form.task_name}
                     onChange={(e) => setForm({ ...form, task_name: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-2 block">学时</label>
+                  <label className="text-sm font-medium text-zinc-700 mb-2 block">学时</label>
                   <Input
                     type="number"
                     value={form.hours}
@@ -443,7 +443,7 @@ export function TeacherTicketsPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-2 block">班级</label>
+                  <label className="text-sm font-medium text-zinc-700 mb-2 block">班级</label>
                   <Input
                     value={form.class_name}
                     onChange={(e) => setForm({ ...form, class_name: e.target.value })}
@@ -454,7 +454,7 @@ export function TeacherTicketsPage() {
                 <Button variant="secondary" className="flex-1" onClick={() => { setShowDetailModal(false); setSelectedTicket(null); }}>
                   取消
                 </Button>
-                <Button variant="primary" className="flex-1" onClick={handleUpdate}>
+                <Button variant="ios" className="flex-1" onClick={handleUpdate}>
                   保存修改
                 </Button>
               </div>
