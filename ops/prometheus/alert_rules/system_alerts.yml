@@ -1,0 +1,66 @@
+groups:
+  - name: system_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: high
+          priority: P1
+          team: ops
+        annotations:
+          summary: "CPU 使用率过高"
+          description: "主机 {{ $labels.instance }} CPU 使用率超过 80%，当前值为 {{ $value | humanizePercentage }}"
+          suggestion: "1. 使用 top 或 htop 查看高 CPU 进程\n2. 分析进程列表找出异常进程\n3. 考虑扩展实例或优化应用\n4. 检查是否有定时任务在高峰期运行"
+
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: high
+          priority: P2
+          team: ops
+        annotations:
+          summary: "内存使用率过高"
+          description: "主机 {{ $labels.instance }} 内存使用率超过 85%，当前值为 {{ $value | humanizePercentage }}"
+          suggestion: "1. 使用 free -m 查看内存使用情况\n2. 使用 ps aux --sort=-%mem 查找高内存进程\n3. 检查是否有内存泄漏\n4. 考虑增加实例内存或优化应用内存使用"
+
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10
+        for: 5m
+        labels:
+          severity: high
+          priority: P2
+          team: ops
+        annotations:
+          summary: "磁盘空间不足"
+          description: "主机 {{ $labels.instance }} 根分区可用空间低于 10%"
+          suggestion: "1. 使用 df -h 查看磁盘使用情况\n2. 清理日志文件: journalctl --vacuum-time=7d\n3. 清理 Docker 资源: docker system prune -a\n4. 查找大文件: du -sh /* | sort -h"
+
+      - alert: HighDiskIO
+        expr: |
+          rate(node_disk_io_time_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: high
+          priority: P2
+          team: ops
+        annotations:
+          summary: "磁盘 I/O 使用率过高"
+          description: "主机 {{ $labels.instance }} 磁盘 I/O 使用率超过 80%"
+          suggestion: "1. 使用 iostat -x 1 5 查看 I/O 详情\n2. 识别高 I/O 进程: iotop\n3. 考虑使用 SSD 或增加磁盘\n4. 优化数据库 I/O 配置"
+
+      - alert: HighSystemLoad
+        expr: |
+          node_load1 / count(node_cpu_seconds_total{mode="idle"}) > 0.7
+        for: 10m
+        labels:
+          severity: medium
+          priority: P3
+          team: ops
+        annotations:
+          summary: "系统负载过高"
+          description: "主机 {{ $labels.instance }} 系统负载超过 CPU 核心数的 70%"
+          suggestion: "1. 使用 uptime 或 top 查看负载情况\n2. 分析运行中的进程\n3. 检查系统资源使用趋势\n4. 考虑水平扩展服务"

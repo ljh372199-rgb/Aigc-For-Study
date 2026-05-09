@@ -1,19 +1,45 @@
-FROM python:3.11-slim
+# Multi-stage Dockerfile for Aigc For Study Backend
+# Optimized for multi-architecture builds (arm64/amd64)
 
-WORKDIR /app
+FROM python:3.11-slim as builder
+
+WORKDIR /build
 
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --shell /bin/bash appuser
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-RUN mkdir -p /app/uploads
+FROM python:3.11-slim
 
-EXPOSE 8000
+WORKDIR /app
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --shell /bin/bash appuser
+
+COPY --from=builder /root/.local /home/appuser/.local
+
+ENV PATH=/home/appuser/.local/bin:$PATH \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+COPY --chown=appuser:appuser . .
+
+RUN mkdir -p /app/uploads && chown appuser:appuser /app/uploads
+
+USER appuser
+
+EXPOSE 38000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:38000/health')" || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "38000"]

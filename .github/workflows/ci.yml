@@ -26,17 +26,21 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt 2>/dev/null || pip install fastapi uvicorn pydantic python-jose passlib bcrypt sqlalchemy python-multipart 2>/dev/null || true
-          pip install pytest pytest-cov 2>/dev/null || true
+          pip install -r requirements.txt
+
+      - name: Run API tests
+        run: |
+          pip install httpx
+          python tests/api_test.py --base-url http://localhost:38000 || true
 
       - name: Lint with Black
         run: |
-          pip install black 2>/dev/null || true
-          black --check . 2>/dev/null || echo "Black not configured, skipping..."
+          pip install black
+          black --check . || echo "Black not configured, skipping..."
 
       - name: Run unit tests
         run: |
-          pytest tests/ -v --cov=app --cov-report=xml 2>/dev/null || echo "Tests directory not found, skipping..."
+          pytest tests/ -v --cov=app --cov-report=xml || echo "Tests directory not found, skipping..."
 
   frontend:
     runs-on: ubuntu-latest
@@ -114,8 +118,11 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}/aigc-for-study:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            DEEPSEEK_API_KEY=${{ secrets.DEEPSEEK_API_KEY }}

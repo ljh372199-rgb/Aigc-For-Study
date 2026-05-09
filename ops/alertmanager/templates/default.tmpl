@@ -1,0 +1,17 @@
+{{ define "email.default.subject" }}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.alertname }}
+{{ end }}
+
+{{ define "email.default.body" }}
+{{ range .Alerts }}
+Alert: {{ .Labels.alertname }}
+Severity: {{ .Labels.severity }}
+Summary: {{ .Annotations.summary }}
+Description: {{ .Annotations.description }}
+{{ if .Labels.service }}Service: {{ .Labels.service }}{{ end }}
+{{ if .Labels.instance }}Instance: {{ .Labels.instance }}{{ end }}
+Started: {{ .StartsAt }}
+{{ if .Annotations.runbook_url }}Runbook: {{ .Annotations.runbook_url }}{{ end }}
+---
+{{ end }}
+{{ end }}

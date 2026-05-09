@@ -1,9 +1,9 @@
 # Aigc For Study 开发流程规范
 
-**版本:** v1.0  
+**版本:** v2.0  
 **制定日期:** 2025-05-07  
-**适用范围:** MVP外包开发阶段  
-**目标交付日期:** 2025-05-20 (MVP内测版)
+**最后更新:** 2026-05-09  
+**适用范围:** MVP外包开发阶段
 
 ---
 
@@ -13,528 +13,377 @@
 
 在14天内完成Aigc For Study产品的MVP版本开发，包含核心功能：
 - 用户系统（学生/教师角色）
-- 课程管理系统
+- 课程/班级管理系统
 - AI学习方案生成
 - 作业系统（发布/提交/AI批改）
 - 基础监控和运维
 
+### 1.2 当前开发进度 (2026-05-09)
 
-### 1.2 开发原则
+| 模块 | 状态 | 端点数 | 备注 |
+|------|------|--------|------|
+| 认证模块 | ✅ 完成 | 3 | 支持用户名/邮箱登录 |
+| 用户模块 | ✅ 完成 | 5 | - |
+| 职业目标模块 | ✅ 完成 | 3 | - |
+| 学习方案模块 | ✅ 完成 | 5 | AI生成方案 |
+| 打卡模块 | ✅ 完成 | 4 | - |
+| 练习题模块 | ✅ 完成 | 5 | AI生成/批改 |
+| 作业模块 | ✅ 完成 | 7 | - |
+| 课程模块 | ✅ 完成 | 7 | - |
+| **班级模块** | ✅ 完成 | 5 | **新增：邀请码功能** |
+| 作业管理模块 | ✅ 完成 | 9 | - |
+| 统计分析模块 | ✅ 完成 | 4 | AI学习分析 |
+| **总计** | **✅** | **57** | - |
 
-1. **敏捷开发**: 2天一个迭代，每日站会同步进度
-2. **质量优先**: 核心功能必须稳定，非核心可简化
-3. **文档先行**: 关键接口和架构必须先评审再开发
-4. **持续集成**: 每日代码提交，自动化构建和测试
+### 1.3 测试状态
 
----
-
-## 2. 开发阶段与时间计划
-
-### 2.1 总体时间线
-
-```
-5月7日(周三)                                               5月20日(周二)
-  |                                                              |
-  |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-  7   8   9  10  11  12  13  14  15  16  17  18  19  20
-  周三 周四 周五 周六 周日 周一 周二 周三 周四 周五 周六 周日 周一 周二
-  
-  [阶段1: 准备期]  [阶段2: 核心开发]      [阶段3: 集成测试]  [交付]
-       3天              8天                    2天          1天
-```
-
-### 2.2 详细开发计划
-
-#### 阶段一: 准备期 (5月7日 - 5月9日, 3天)
-
-| 日期 | 任务 | 负责人 | 交付物 | 验收标准 |
-|------|------|--------|--------|----------|
-| 5/7(周三) | 需求最终确认 | 项目负责人 | 需求确认书 | 甲方签字确认 |
-| 5/7(周三) | 技术方案评审 | 全团队 | 技术方案文档 | 架构评审通过 |
-| 5/7(周三) | 开发环境搭建 | 后端/前端 | 开发环境文档 | 所有人可正常开发 |
-| 5/8(周四) | 数据库设计 | 后端 | ER图+建表SQL | 评审通过 |
-| 5/8(周四) | 接口设计 | 后端 | API文档 | 前后端评审通过 |
-| 5/8(周四) | UI设计稿确认 | 前端 | Figma设计稿 | 甲方确认 |
-| 5/9(周五) | 项目脚手架搭建 | 后端/前端 | 代码仓库 | CI/CD跑通 |
-| 5/9(周五) | Docker配置 | 后端 | docker-compose.yml | 本地可一键启动 |
-
-**阶段一里程碑 (5月9日晚):**
-- [ ] 开发环境所有人可用
-- [ ] 数据库表结构确定
-- [ ] 接口文档前后端确认
-- [ ] CI/CD流水线跑通
-- [ ] 本地Docker环境可启动
-
-#### 阶段二: 核心开发 (5月10日 - 5月17日, 8天)
-
-**迭代1: 基础功能 (5/10-5/11, 2天)**
-
-| 日期 | 后端任务 | 前端任务 | 联合任务 |
-|------|----------|----------|----------|
-| 5/10(周六) | 用户系统API(注册/登录/JWT) | 登录/注册页面 | 接口联调 |
-| 5/11(周日) | 用户角色权限 | 角色选择页面 | 权限测试 |
-
-**交付物:** 用户可注册登录，区分学生/教师角色
+| 测试套件 | 测试数 | 通过率 |
+|---------|-------|--------|
+| 基础API测试 | 18 | 100% |
+| 学生-老师绑定测试 | 24 | 100% |
+| AI功能测试 | 26 | 100% |
+| **总计** | **68** | **100%** |
 
 ---
 
-**迭代2: 课程系统 (5/12-5/13, 2天)**
+## 2. 技术栈
 
-| 日期 | 后端任务 | 前端任务 | 联合任务 |
-|------|----------|----------|----------|
-| 5/12(周一) | 课程CRUD API | 教师端课程管理 | 接口联调 |
-| 5/13(周二) | 学生选课API | 学生端课程列表/加入 | 选课流程测试 |
+### 2.1 后端技术栈
 
-**交付物:** 教师可创建课程，学生可加入课程
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| Python | 3.11+ | 编程语言 |
+| FastAPI | latest | Web框架 |
+| SQLAlchemy | latest | ORM |
+| PostgreSQL | 15+ | 数据库 |
+| Redis | 7+ | 缓存 |
+| Alembic | latest | 数据库迁移 |
+| DeepSeek API | - | AI服务 |
+| JWT | - | 认证 |
 
----
+### 2.2 前端技术栈
 
-**迭代3: AI学习方案 (5/14-5/15, 2天)**
-
-| 日期 | 后端任务 | 前端任务 | 联合任务 |
-|------|----------|----------|----------|
-| 5/14(周三) | AI生成方案API | 职业选择页面 | AI接口联调 |
-| 5/15(周四) | 方案存储/查询 | 学习方案展示 | 端到端测试 |
-
-**交付物:** 学生可选择职业，AI生成学习方案
-
-**阶段二中期检查 (5月15日晚):**
-- [ ] 用户系统稳定
-- [ ] 课程系统可用
-- [ ] AI学习方案可生成
-- [ ] 监控部署完成
-
----
-
-**迭代4: 作业系统 (5/16-5/17, 2天)**
-
-| 日期 | 后端任务 | 前端任务 | 联合任务 |
-|------|----------|----------|----------|
-| 5/16(周五) | 作业CRUD API | 教师发布作业/学生提交 | 接口联调 |
-| 5/17(周六) | AI批改集成 | 作业批改结果展示 | AI批改测试 |
-
-**交付物:** 教师可发布作业，学生可提交，AI自动批改
-
-#### 阶段三: 集成测试 (5月18日 - 5月19日, 2天)
-
-| 日期 | 任务 | 负责人 | 交付物 |
-|------|------|--------|--------|
-| 5/18(周日) | 功能测试 | 测试 | 测试报告 |
-| 5/18(周日) | Bug修复 | 开发 | 修复后的版本 |
-| 5/18(周日) | 性能测试 | 后端 | 性能报告 |
-| 5/19(周一) | 集成测试 | 全团队 | 集成测试报告 |
-| 5/19(周一) | 安全测试 | 后端 | 安全报告 |
-| 5/19(周一) | 文档完善 | 全团队 | 完整文档 |
-
-**测试重点:**
-- 用户注册/登录流程
-- 课程创建/加入流程
-- AI学习方案生成流程
-- 作业发布/提交/批改流程
-- 并发性能（模拟100用户）
-
-#### 阶段四: 交付 (5月20日, 1天)
-
-|
-**交付物清单:**
-- [ ] 源代码（Git仓库）
-- [ ] 部署文档
-- [ ] 运维手册
-- [ ] API文档
-- [ ] 测试报告
-- [ ] 培训材料
+| 技术 | 版本 | 说明 |
+|------|------|------|
+| React | 18+ | UI框架 |
+| TypeScript | 5+ | 类型安全 |
+| Vite | 5+ | 构建工具 |
+| React Router | 6+ | 路由 |
+| Tailwind CSS | 3+ | 样式 |
 
 ---
 
+## 3. API规范
 
+### 3.1 基础信息
 
-## 3. 代码管理规范
+- **Base URL**: `http://localhost:38000/api/v1`
+- **认证方式**: JWT Bearer Token
+- **登录格式**: `application/x-www-form-urlencoded` (仅登录)
+- **其他API格式**: `application/json`
 
-### 3.1 Git分支策略
+### 3.2 登录接口特殊说明
 
-采用 **Git Flow 简化版**：
+登录接口使用 `application/x-www-form-urlencoded` 格式：
 
-```
-main (生产分支)
-  ↑
-develop (开发分支) ← 日常开发基于此
-  ↑
-feature/* (功能分支) ← 每个功能一个分支
-  ↑
-hotfix/* (热修分支) ← 紧急修复
-```
-
-**分支命名规范:**
-- 功能分支: `feature/user-login`
-- 修复分支: `fix/login-bug`
-- 热修分支: `hotfix/critical-error`
-
-### 3.2 提交规范
-
-采用 **Conventional Commits** 规范：
-
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-**类型(type):**
-- `feat`: 新功能
-- `fix`: Bug修复
-- `docs`: 文档更新
-- `style`: 代码格式（不影响功能）
-- `refactor`: 重构
-- `test`: 测试相关
-- `chore`: 构建/工具相关
-
-**示例:**
 ```bash
-feat(auth): 添加用户登录接口
-
-- 实现JWT认证
-- 添加登录校验
-- 集成Redis存储Token
-
-Closes #123
+curl -X POST http://localhost:38000/api/v1/auth/login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=your_username_or_email&password=your_password"
 ```
 
-### 3.3 代码审查 (Code Review)
+登录支持用户名或邮箱两种方式。
 
-**审查流程:**
-1. 开发完成本地测试后，提交PR到develop分支
-2. 指定审查人（后端代码需另一后端审查，前端同理）
-3. 审查人24小时内完成审查
-4. 审查通过后合并，不通过需修改再提交
+### 3.3 API端点汇总
 
-**审查 checklist:**
-- [ ] 代码符合项目规范
-- [ ] 功能实现正确
-- [ ] 有必要的注释
-- [ ] 无明显的性能问题
-- [ ] 无安全漏洞
-- [ ] 测试用例通过
-
-**审查优先级:**
-- P0: 阻塞问题（安全、性能、功能错误）- 必须修复
-- P1: 建议优化（代码风格、可读性）- 建议修复
-- P2:  nitpick（个人偏好）- 可选修复
+```
+认证 (Auth)           - 3个端点
+用户 (Users)          - 5个端点
+职业目标 (Careers)     - 3个端点
+学习方案 (Learning)    - 5个端点
+打卡 (Check-ins)      - 4个端点
+练习题 (Exercises)    - 5个端点
+作业 (Assignments)    - 7个端点
+课程 (Courses)        - 7个端点
+班级 (Classes)        - 5个端点  ← 新增
+作业管理 (Homework)   - 9个端点
+统计 (Analytics)      - 4个端点
+─────────────────────────────
+总计                  - 57个端点
+```
 
 ---
 
-## 4. 开发规范
+## 4. 数据库设计
 
-### 4.1 后端开发规范
+### 4.1 核心表结构
 
-**技术栈:** Python 3.11 + FastAPI
+| 表名 | 说明 | 主要字段 |
+|------|------|----------|
+| users | 用户表 | id, username, email, role, status |
+| careers | 职业目标 | id, name, description, skills_required |
+| learning_plans | 学习方案 | id, user_id, career_goal_id, title, plan_data |
+| check_ins | 打卡记录 | id, user_id, duration_minutes, check_in_date |
+| exercises | 练习题 | id, student_id, topic, content, result |
+| courses | 课程表 | id, teacher_id, title, description |
+| course_enrollments | 课程报名 | id, course_id, student_id |
+| homeworks | 作业表 | id, course_id, title, deadline |
+| homework_submissions | 作业提交 | id, homework_id, student_id, content, score |
+| **classes** | 班级表 | id, teacher_id, name, **invite_code** |
+| **class_members** | 班级成员 | id, class_id, student_id, role |
 
-**代码规范:**
-- 遵循 PEP 8 规范
-- 使用 Black 格式化代码
-- 使用 isort 排序导入
-- 类型注解必须完整
+### 4.2 班级功能说明
 
-**项目结构:**
+**邀请码生成规则**:
+- 长度: 8位
+- 字符: 大写字母 + 数字
+- 唯一性: 数据库唯一索引 + 代码重试机制
+
+```python
+def generate_invite_code(length: int = 8) -> str:
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(random.choices(characters, k=length))
+```
+
+---
+
+## 5. 项目结构
+
+### 5.1 后端结构
+
 ```
 backend/
 ├── app/
-│   ├── __init__.py
-│   ├── main.py              # 应用入口
-│   ├── api/                 # API路由
-│   │   ├── __init__.py
-│   │   ├── v1/
-│   │   │   ├── __init__.py
-│   │   │   ├── auth.py      # 认证相关
-│   │   │   ├── users.py     # 用户相关
-│   │   │   └── ...
-│   ├── core/                # 核心配置
-│   │   ├── config.py        # 配置管理
-│   │   ├── security.py      # 安全相关
+│   ├── api/
+│   │   ├── deps.py          # 依赖注入
+│   │   └── v1/
+│   │       ├── auth.py      # 认证
+│   │       ├── users.py     # 用户
+│   │       ├── careers.py   # 职业
+│   │       ├── learning_plan.py  # 学习方案
+│   │       ├── check_ins.py     # 打卡
+│   │       ├── exercises.py      # 练习题
+│   │       ├── assignments.py   # 作业
+│   │       ├── courses.py       # 课程
+│   │       ├── classes.py       # 班级 ← 新增
+│   │       ├── homework.py      # 作业管理
+│   │       └── analytics.py     # 统计
+│   ├── core/
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── security.py
+│   │   └── logging.py
+│   ├── models/
+│   │   ├── user.py
+│   │   ├── class_model.py   # 班级模型 ← 新增
 │   │   └── ...
-│   ├── models/              # 数据库模型
-│   ├── schemas/             # Pydantic模型
-│   ├── services/            # 业务逻辑
-│   └── utils/               # 工具函数
-├── tests/                   # 测试代码
-├── alembic/                 # 数据库迁移
+│   ├── schemas/
+│   │   ├── auth.py
+│   │   ├── class_schema.py  # 班级Schema ← 新增
+│   │   └── ...
+│   ├── services/
+│   │   └── ai/
+│   │       ├── base.py
+│   │       ├── deepseek_service.py
+│   │       └── mock_service.py
+│   └── main.py
+├── migrations/
+│   └── versions/
+│       ├── 001_initial.py
+│       ├── 002_add_courses_homework.py
+│       └── 003_add_classes.py  ← 新增
+├── tests/
+│   ├── api_test.py
+│   ├── test_teacher_student_binding.py
+│   └── test_ai_features.py
 ├── Dockerfile
 └── requirements.txt
 ```
 
-**接口规范:**
-- RESTful API设计
-- 统一响应格式:
-```json
-{
-  "code": 200,
-  "message": "success",
-  "data": {}
-}
-```
-- 错误码规范:
-  - 200: 成功
-  - 400: 请求参数错误
-  - 401: 未认证
-  - 403: 无权限
-  - 404: 资源不存在
-  - 500: 服务器内部错误
+### 5.2 前端结构
 
-### 4.2 前端开发规范
-
-**技术栈:** Vue 3 + TypeScript + Element Plus
-
-**代码规范:**
-- 使用 ESLint + Prettier
-- 组件名大驼峰 (PascalCase)
-- 变量名小驼峰 (camelCase)
-- 常量全大写 + 下划线 (SNAKE_CASE)
-
-**项目结构:**
 ```
 frontend/
 ├── src/
-│   ├── api/                 # API请求
-│   ├── assets/              # 静态资源
-│   ├── components/          # 公共组件
-│   ├── composables/         # 组合式函数
-│   ├── layouts/             # 布局组件
-│   ├── router/              # 路由配置
-│   ├── stores/              # Pinia状态管理
-│   ├── styles/              # 全局样式
-│   ├── utils/               # 工具函数
-│   ├── views/               # 页面组件
-│   │   ├── student/         # 学生端页面
-│   │   ├── teacher/         # 教师端页面
-│   │   └── admin/           # 管理后台
-│   ├── App.vue
-│   └── main.ts
+│   ├── api/                # API调用
+│   ├── components/         # 组件
+│   ├── pages/             # 页面
+│   ├── hooks/             # Hooks
+│   ├── stores/            # 状态管理
+│   └── App.tsx
 ├── public/
-├── tests/
-├── index.html
-├── package.json
-└── vite.config.ts
-```
-
-### 4.3 数据库规范
-
-**命名规范:**
-- 表名: 小写 + 下划线 (snake_case)，复数形式
-- 字段名: 小写 + 下划线 (snake_case)
-- 索引名: `idx_表名_字段名`
-- 外键名: `fk_表名_关联表名`
-
-**字段规范:**
-- 主键统一使用 UUID
-- 必须字段: `id`, `created_at`, `updated_at`
-- 软删除使用 `deleted_at` 字段
-- 状态字段使用枚举，注释说明含义
-
-**示例:**
-```sql
-CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    username VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    role VARCHAR(20) NOT NULL, -- student|teacher|admin
-    status VARCHAR(20) DEFAULT 'active', -- active|inactive
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP  -- 软删除
-);
-
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_role_status ON users(role, status) WHERE deleted_at IS NULL;
+├── Dockerfile
+└── package.json
 ```
 
 ---
 
-## 5. 测试规范
+## 6. 开发环境
 
-### 5.1 测试策略
+### 6.1 Docker服务
 
-| 测试类型 | 阶段 | 负责人 | 覆盖率要求 |
-|----------|------|--------|------------|
-| 单元测试 | 开发阶段 | 开发 | 核心逻辑>70% |
-| 集成测试 | 联调阶段 | 开发+测试 | 主流程100% |
-| 功能测试 | 测试阶段 | 测试 | P0功能100% |
-| 性能测试 | 测试阶段 | 后端 | 关键接口 |
-| 安全测试 | 测试阶段 | 后端 | 高危漏洞0 |
+```bash
+# 启动所有服务
+cd Aigc-For-Study
+docker-compose up -d
 
-### 5.2 测试用例规范
+# 查看服务状态
+docker-compose ps
 
-**用例编号:** `TC-模块-序号` (如: TC-AUTH-001)
-
-**用例模板:**
-```markdown
-### TC-XXX-001: [用例名称]
-
-**优先级:** P0/P1/P2
-**前置条件:** 
-- 条件1
-- 条件2
-
-**测试步骤:**
-1. 步骤1
-2. 步骤2
-3. 步骤3
-
-**预期结果:**
-- 结果1
-- 结果2
-
-**实际结果:** (执行时填写)
-- 
-
-**状态:** (通过/失败/阻塞)
+# 查看日志
+docker-compose logs -f api
 ```
 
-### 5.3 Bug管理
+### 6.2 服务端口
 
-**Bug等级:**
-- **P0-致命**: 系统崩溃、数据丢失、安全漏洞 - 必须立即修复
-- **P1-严重**: 核心功能不可用 - 24小时内修复
-- **P2-一般**: 非核心功能异常 - 48小时内修复
-- **P3-轻微**: UI问题、体验优化 - 排期修复
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| API | 38000 | 后端API |
+| Web | 3000 | 前端页面 |
+| DB | 5432 | PostgreSQL |
+| Redis | 6379 | Redis |
 
-**Bug流程:**
-```
-发现Bug → 提交Issue → 分配负责人 → 修复 → 验证 → 关闭
-```
+### 6.3 健康检查
 
-**Bug报告模板:**
-```markdown
-**标题:** [Bug简述]
+```bash
+# API健康检查
+curl http://localhost:38000/health
 
-**环境:**
-- 版本: commit xxx
-- 浏览器: Chrome 120
-- 系统: macOS 14
-
-**复现步骤:**
-1. 
-2. 
-3. 
-
-**预期结果:**
-
-**实际结果:**
-
-**截图/日志:**
-
-**优先级:** P0/P1/P2/P3
+# 详细健康检查
+curl http://localhost:38000/health/detailed
 ```
 
 ---
 
-## 6. 文档规范
+## 7. 代码规范
 
-### 6.1 文档清单
+### 7.1 后端规范
 
-| 文档 | 负责人 | 完成时间 | 存放位置 |
-|------|--------|----------|----------|
-| 需求文档 | 项目负责人 | 5/7 | /docs/requirements.md |
-| 架构设计 | 后端 | 5/7 | /docs/architecture.md |
-| API文档 | 后端 | 随开发更新 | /docs/api/ |
-| 部署文档 | 后端 | 5/19 | /docs/deploy.md |
-| 运维手册 | 后端 | 5/19 | /docs/operations.md |
-| 测试报告 | 测试 | 5/19 | /docs/test-report.md |
-| 培训材料 | 全团队 | 5/20 | /docs/training/ |
+- 遵循 PEP 8 规范
+- 使用 Black 格式化代码
+- 类型注解必须完整
+- 异步优先
 
-### 6.2 文档规范
+### 7.2 提交规范
 
-- 使用 Markdown 格式
-- 代码块必须标注语言
-- 图片统一存放在 `/docs/images/`
-- 文档变更需同步更新目录和版本号
+```
+<type>(<scope>): <subject>
+
+feat(auth): 添加用户名邮箱登录支持
+fix(api): 修复邀请码生成重复问题
+docs(classes): 添加班级API文档
+```
+
+### 7.3 分支策略
+
+```
+main (生产分支)
+  ↑
+develop (开发分支)
+  ↑
+feature/* (功能分支)
+  ↑
+hotfix/* (热修分支)
+```
 
 ---
 
+## 8. 测试规范
 
-## 7. 交付标准
+### 8.1 测试覆盖
 
-### 7.1 功能完成标准
+| 模块 | 测试用例数 | 状态 |
+|------|-----------|------|
+| 基础API | 18 | ✅ 通过 |
+| 学生-老师绑定 | 24 | ✅ 通过 |
+| AI功能 | 26 | ✅ 通过 |
+| **总计** | **68** | **✅ 100%** |
 
-- [ ] 所有P0功能开发完成
-- [ ] 所有P0功能测试通过
-- [ ] 代码审查完成
-- [ ] 文档完整
-- [ ] 甲方验收通过
+### 8.2 运行测试
 
-### 7.2 代码质量标准
+```bash
+# 运行所有测试
+cd backend
+python3 tests/api_test.py
+python3 tests/test_teacher_student_binding.py
+python3 tests/test_ai_features.py
+```
 
-- [ ] 单元测试覆盖率>70%
-- [ ] 无P0/P1级Bug
-- [ ] 代码审查100%通过
-- [ ] 无安全高危漏洞
-- [ ] 性能满足指标
+---
 
-### 7.3 文档交付标准
+## 9. 部署说明
 
-- [ ] 部署文档可复现
-- [ ] API文档完整准确
-- [ ] 运维手册可操作
-- [ ] 培训材料完整
+### 9.1 Docker构建
+
+```bash
+# 构建后端镜像
+./scripts/build-docker.sh --tag dev
+
+# 构建前端镜像
+./scripts/build-frontend-docker.sh --tag dev
+
+# 构建所有
+./scripts/build-all.sh --all --tag dev
+```
+
+### 9.2 环境变量
+
+```bash
+# 后端
+DATABASE_URL=postgresql://aigc:aigc@db:5432/aigc_dev
+REDIS_URL=redis://redis:6379/0
+DEEPSEEK_API_KEY=your-api-key
+JWT_SECRET_KEY=your-secret-key
+
+# 前端
+VITE_API_BASE_URL=http://localhost:38000/api/v1
+```
+
+---
+
+## 10. 文档清单
+
+| 文档 | 路径 | 状态 |
+|------|------|------|
+| API参考文档 | docs/API_REFERENCE.md | ✅ 完成 |
+| API测试文档 | docs/API_TEST_COMPLETE.md | ✅ 完成 |
+| 前端集成指南 | docs/FRONTEND_INTEGRATION_GUIDE.md | ✅ 完成 |
+| 前端开发提示词 | docs/FRONTEND_DEVELOPMENT_PROMPT.md | ✅ 完成 |
+| Docker构建指南 | docs/Docker_Build_All_Script_Guide.md | ✅ 完成 |
+| 环境配置文档 | docs/环境配置文档.md | ✅ 完成 |
+| 开发流程规范 | docs/Aigc_For_Study_开发流程规范.md | ✅ 完成 |
 
 ---
 
 ## 附录
 
-### A. 项目里程碑检查点
-
-**检查点1 (5/9): 准备完成**
-- [ ] 开发环境就绪
-- [ ] 技术方案确认
-- [ ] 数据库设计完成
-
-**检查点2 (5/13): 基础功能完成**
-- [ ] 用户系统可用
-- [ ] 课程系统可用
-- [ ] 基础监控部署
-
-**检查点3 (5/15): 中期评审**
-- [ ] 50%功能完成
-- [ ] 甲方中期验收
-- [ ] 风险重新评估
-
-**检查点4 (5/17): 核心功能完成**
-- [ ] AI学习方案可用
-- [ ] 作业系统可用
-- [ ] AI批改可用
-
-**检查点5 (5/19): 测试完成**
-- [ ] 功能测试通过
-- [ ] 性能测试通过
-- [ ] 文档完成
-
-**检查点6 (5/20): 项目交付**
-- [ ] 甲方验收通过
-- [ ] 交付物移交
-- [ ] 培训完成
-
-### B. 常用命令速查
+### A. 常用命令
 
 ```bash
-# 启动开发环境
+# 启动服务
 docker-compose up -d
 
 # 查看日志
-docker-compose logs -f [service]
+docker-compose logs -f api
 
-# 数据库迁移
-cd backend && alembic upgrade head
+# 重启API
+docker-compose restart api
+
+# 执行数据库迁移
+docker-compose exec api alembic upgrade head
 
 # 运行测试
-cd backend && pytest
-cd frontend && npm run test
-
-# 代码格式化
-cd backend && black .
-cd frontend && npm run lint
-
-# 构建镜像
-docker build -t aigc-api:latest ./backend
-docker build -t aigc-web:latest ./frontend
+cd backend && python3 tests/api_test.py
 ```
 
+### B. 快捷访问
+
+- API文档: http://localhost:38000/docs
+- 前端页面: http://localhost:3000
+- 数据库: psql -U aigc -d aigc_dev
+
+---
+
+**文档版本**: v2.0
+**最后更新**: 2026-05-09
+**维护者**: Aigc For Study Team

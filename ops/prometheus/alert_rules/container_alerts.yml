@@ -1,0 +1,58 @@
+groups:
+  - name: container_alerts
+    rules:
+      - alert: ContainerHighCPU
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{name!=""}[5m])) by (name)
+          /
+          sum(container_spec_cpu_quota{name!=""} / container_spec_cpu_period{name!=""}) by (name) > 0.8
+        for: 5m
+        labels:
+          severity: high
+          priority: P1
+          team: ops
+        annotations:
+          summary: "容器 CPU 使用率过高"
+          description: "容器 {{ $labels.name }} CPU 使用率超过 limit 的 80%"
+          suggestion: "1. 查看容器日志: docker logs {{ $labels.name }}\n2. 使用 docker stats 分析资源使用\n3. 考虑增加 CPU limit 或优化应用\n4. 检查是否有异常进程"
+
+      - alert: ContainerHighMemory
+        expr: |
+          container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""} > 0.9
+        for: 5m
+        labels:
+          severity: high
+          priority: P2
+          team: ops
+        annotations:
+          summary: "容器内存使用率过高"
+          description: "容器 {{ $labels.name }} 内存使用率超过 limit 的 90%"
+          suggestion: "1. 查看容器内存趋势\n2. 分析应用内存泄漏可能性\n3. 增加内存 limit 或优化应用\n4. 检查容器重启次数"
+
+      - alert: ContainerRestartingFrequently
+        expr: |
+          increase(container_restart_count[1h]) > 3
+        for: 0m
+        labels:
+          severity: high
+          priority: P2
+          team: ops
+        annotations:
+          summary: "容器频繁重启"
+          description: "容器 {{ $labels.name }} 在过去 1 小时内重启超过 3 次"
+          suggestion: "1. 查看容器最后日志: docker logs --tail 100 {{ $labels.name }}\n2. 检查容器健康检查配置\n3. 验证资源限制是否足够\n4. 检查应用启动脚本和依赖"
+
+      - alert: ContainerNetworkTrafficZero
+        expr: |
+          sum(rate(container_network_receive_bytes_total{name!=""}[10m])) by (name) == 0
+          and
+          sum(rate(container_network_transmit_bytes_total{name!=""}[10m])) by (name) == 0
+        for: 10m
+        labels:
+          severity: medium
+          priority: P3
+          team: ops
+        annotations:
+          summary: "容器网络流量为零"
+          description: "容器 {{ $labels.name }} 网络流量为零已超过 10 分钟"
+          suggestion: "1. 确认服务是否应该接收流量\n2. 检查网络配置和 DNS\n3. 验证容器端口映射\n4. 检查负载均衡器配置"

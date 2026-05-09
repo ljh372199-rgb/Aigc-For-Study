@@ -467,6 +467,8 @@ jobs:
 | `CLAUDE_API_KEY` | Claude API密钥 | 应用运行 |
 | `JWT_SECRET_KEY` | JWT签名密钥 | 应用运行 |
 | `DB_PASSWORD` | 数据库密码 | 应用运行 |
+| `SMTP_USER` | 163邮箱账号 | 邮箱验证码发送 |
+| `SMTP_PASSWORD` | 163邮箱授权码 | 邮箱验证码发送 |
 | `SNYK_TOKEN` | Snyk令牌 | 安全扫描 |
 
 ### 3.2 配置Secrets步骤

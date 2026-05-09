@@ -1,0 +1,99 @@
+groups:
+  - name: api_alerts
+    rules:
+      - alert: APIServiceDown
+        expr: up{job="api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          priority: P0
+          team: backend
+        annotations:
+          summary: "API 服务宕机"
+          description: "API 服务 (job={{ $labels.job }}) 已宕机超过 1 分钟"
+          suggestion: "1. 检查 API 容器运行状态: docker ps -a | grep api\n2. 查看 API 日志: docker logs <container_id>\n3. 检查端口 8000 是否被占用\n4. 检查网络连接和依赖服务状态"
+
+      - alert: HighAPIErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{job="api", status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job="api"}[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          priority: P0
+          team: backend
+        annotations:
+          summary: "API 错误率过高"
+          description: "API 5xx 错误率超过 5%，当前值为 {{ $value | humanizePercentage }}"
+          suggestion: "1. 检查后端服务日志获取具体错误信息\n2. 检查数据库连接和查询性能\n3. 检查外部依赖服务状态\n4. 查看是否有异常请求模式"
+
+      - alert: HighAPILatency
+        expr: |
+          histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job="api"}[5m])) by (le)) > 3
+        for: 5m
+        labels:
+          severity: high
+          priority: P1
+          team: backend
+        annotations:
+          summary: "API 延迟过高"
+          description: "API P99 延迟超过 3 秒，当前值为 {{ $value | humanizeDuration }}"
+          suggestion: "1. 检查慢查询日志\n2. 分析数据库查询性能\n3. 检查缓存命中率和连接池状态\n4. 考虑增加服务实例或优化代码逻辑"
+
+      - alert: LowAPIRequestVolume
+        expr: |
+          sum(rate(http_requests_total{job="api"}[10m])) < 0.1
+        for: 10m
+        labels:
+          severity: high
+          priority: P1
+          team: backend
+        annotations:
+          summary: "API 请求量异常"
+          description: "API 请求速率异常低，当前值为 {{ $value | humanize }} req/s"
+          suggestion: "1. 确认服务是否正常接收流量\n2. 检查负载均衡器和网关配置\n3. 排查网络问题\n4. 检查上游服务状态"
+
+      - alert: DatabaseConnectionPoolExhaustion
+        expr: |
+          (
+            sum(postgresql_process_open_connections{})
+            /
+            sum(postgresql_process_max_connections{})
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: high
+          priority: P2
+          team: backend
+        annotations:
+          summary: "数据库连接池耗尽"
+          description: "数据库连接池使用率超过 80%，当前值为 {{ $value | humanizePercentage }}"
+          suggestion: "1. 检查慢查询并优化\n2. 调整连接池最大连接数\n3. 检查是否有连接泄漏\n4. 考虑增加数据库资源"
+
+      - alert: RedisConnectionFailed
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: high
+          priority: P2
+          team: backend
+        annotations:
+          summary: "Redis 连接失败"
+          description: "Redis 服务不可用超过 1 分钟"
+          suggestion: "1. 检查 Redis 容器状态\n2. 检查 Redis 配置和密码\n3. 查看 Redis 日志\n4. 确认网络连接性"
+
+      - alert: HighAIAPILatency
+        expr: |
+          histogram_quantile(0.99, sum(rate(ai_api_request_duration_seconds_bucket{}[5m])) by (le)) > 30
+        for: 5m
+        labels:
+          severity: medium
+          priority: P3
+          team: backend
+        annotations:
+          summary: "AI API 延迟过高"
+          description: "AI API P99 延迟超过 30 秒，当前值为 {{ $value | humanizeDuration }}"
+          suggestion: "1. 检查 AI 服务供应商状态\n2. 考虑实现请求超时和重试机制\n3. 优化 AI 调用批处理逻辑\n4. 评估是否需要降级策略"

@@ -8,22 +8,40 @@ services:
     container_name: aigc-api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "38000:38000"
     environment:
       - APP_ENV=${APP_ENV:-development}
+      - DEBUG=${DEBUG:-true}
       - DATABASE_URL=${DATABASE_URL:-postgresql://aigc:aigc@db:5432/aigc_dev}
       - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-jwt-secret-key-change-in-production}
+      - JWT_ALGORITHM=HS256
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
+      - AI_PROVIDER=${AI_PROVIDER:-deepseek}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - CLAUDE_API_KEY=${CLAUDE_API_KEY}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - CORS_ORIGINS=["http://localhost:3000","http://localhost:8080"]
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
     volumes:
       - ./backend:/app
       - uploads:/app/uploads
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - aigc-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:38000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   web:
     build:
@@ -34,7 +52,8 @@ services:
     ports:
       - "3000:80"
     environment:
-      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api/v1}
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:38000/api/v1}
+      - VITE_WS_URL=${VITE_WS_URL:-ws://localhost:38000/ws}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -57,6 +76,11 @@ services:
       - "5432:5432"
     networks:
       - aigc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aigc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
