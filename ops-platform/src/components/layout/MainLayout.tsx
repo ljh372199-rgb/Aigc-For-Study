@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
@@ -8,14 +8,12 @@ interface MainLayoutProps {
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
   return (
     <div className="min-h-screen bg-background-primary flex">
-      <Sidebar collapsed={sidebarCollapsed} />
+      <Sidebar collapsed={false} />
 
       <div className="flex-1 flex flex-col">
-        <Header onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <Header />
 
         <motion.main
           initial={{ opacity: 0, y: 20 }}

@@ -23,50 +23,15 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           envs: STAGING_PORT
+          timeout: 30m
           script: |
             export STAGING_PORT="${{ vars.STAGING_PORT }}"
             cd /app/aigc-for-study
 
-            # 创建测试环境配置文件
-            cat > .env.staging << EOF
-            APP_PORT=$STAGING_PORT
-            APP_ENV=staging
-            DEBUG=false
-            
-            # 数据库配置
-            DATABASE_URL=postgresql://${{ secrets.STAGING_DB_USER }}:${{ secrets.STAGING_DB_PASSWORD }}@localhost:5432/aigc_staging
-            
-            # Redis配置
-            REDIS_URL=redis://localhost:6379/0
-            
-            # JWT配置
-            JWT_SECRET_KEY=${{ secrets.STAGING_JWT_SECRET }}
-            JWT_ALGORITHM=HS256
-            JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
-            JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
-            
-            # DeepSeek AI配置
-            AI_PROVIDER=deepseek
-            DEEPSEEK_API_KEY=${{ secrets.DEEPSEEK_API_KEY }}
-            DEEPSEEK_MODEL=deepseek-chat
-            DEEPSEEK_BASE_URL=https://api.deepseek.com
-            
-            # CORS配置
-            CORS_ORIGINS=["https://staging.aigcstudy.com"]
-            
-            # 日志配置
-            LOG_LEVEL=INFO
-            LOG_FORMAT=json
-            EOF
-
-            # 拉取最新代码
             git pull origin develop
 
-            # 构建并启动服务
-            docker-compose -f docker-compose.yml -f docker-compose.staging.yml build --no-cache api 2>/dev/null || true
-            docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d 2>/dev/null || echo "Docker compose not configured, skipping..."
+            docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
 
-            # 健康检查
             sleep 10
             curl -f http://localhost:$STAGING_PORT/health || echo "Health check endpoint not available"
 

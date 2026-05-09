@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
 
 interface ApiConfig {
   baseURL?: string;
@@ -35,15 +35,16 @@ class ApiClient {
         }
         return config;
       },
-      (error: AxiosError) => {
+      (error: unknown) => {
         return Promise.reject(error);
       }
     );
 
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
-      (error: AxiosError) => {
-        if (error.response?.status === 401) {
+      (error: unknown) => {
+        const err = error as { response?: { status?: number } };
+        if (err.response?.status === 401) {
           localStorage.removeItem('auth_token');
           window.location.href = '/login';
         }

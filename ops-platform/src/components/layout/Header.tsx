@@ -1,11 +1,7 @@
 import { Bell, Search, User } from 'lucide-react';
 import { Button } from '@/components/ui';
 
-interface HeaderProps {
-  onToggleSidebar?: () => void;
-}
-
-export function Header({ onToggleSidebar }: HeaderProps) {
+export function Header() {
   return (
     <header className="h-16 bg-background-secondary border-b border-border flex items-center justify-between px-xl">
       <div className="flex items-center flex-1">
