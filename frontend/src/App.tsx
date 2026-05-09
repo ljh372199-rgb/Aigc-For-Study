@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { GuestGuard } from '@/components/GuestGuard';
 import { ToastProvider } from '@/components/ui';
 import { LoginPage } from '@/pages/LoginPage';
@@ -23,7 +23,7 @@ import { TeacherLessonPlanPage } from '@/pages/TeacherLessonPlanPage';
 import { TeacherResourcesPage } from '@/pages/TeacherResourcesPage';
 import { TeacherTicketsPage } from '@/pages/TeacherTicketsPage';
 import { TeacherAnalyticsPage } from '@/pages/TeacherAnalyticsPage';
-import { useAuth } from '@/hooks/useAuth';
+import { AuthProvider, useAuth } from '@/hooks/useAuth';
 
 function LoadingScreen() {
   return (
@@ -71,72 +71,65 @@ function TeacherRoutes() {
   );
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <AuthLayout />,
-    children: [
-      { index: true, element: <HomeRedirect /> },
-      {
-        path: 'student/*',
-        element: <StudentRoutes />,
-        children: [
-          { index: true, element: <StudentDashboard /> },
-          { path: 'dashboard', element: <StudentDashboard /> },
-          { path: 'home', element: <HomePage /> },
-          { path: 'careers', element: <CareersPage /> },
-          { path: 'plans', element: <PlansPage /> },
-          { path: 'courses', element: <CoursesPage /> },
-          { path: 'exercises', element: <ExercisesPage /> },
-          { path: 'assignments', element: <AssignmentsPage /> },
-          { path: 'checkins', element: <CheckinsPage /> },
-          { path: 'classes', element: <StudentClassesPage /> },
-        ],
-      },
-      {
-        path: 'teacher/*',
-        element: <TeacherRoutes />,
-        children: [
-          { index: true, element: <TeacherHomePage /> },
-          { path: 'home', element: <TeacherHomePage /> },
-          { path: 'courses', element: <TeacherCoursesPage /> },
-          { path: 'lesson-plans', element: <TeacherLessonPlanPage /> },
-          { path: 'resources', element: <TeacherResourcesPage /> },
-          { path: 'homework', element: <TeacherAssignmentsPage /> },
-          { path: 'tickets', element: <TeacherTicketsPage /> },
-          { path: 'students', element: <TeacherControlCenter /> },
-          { path: 'analytics', element: <TeacherAnalyticsPage /> },
-        ],
-      },
-    ],
-  },
-  {
-    path: '/login',
-    element: (
-      <GuestGuard>
-        <LoginPage />
-      </GuestGuard>
-    ),
-  },
-  {
-    path: '/register',
-    element: (
-      <GuestGuard>
-        <RegisterPage />
-      </GuestGuard>
-    ),
-  },
-  {
-    path: '*',
-    element: <Navigate to="/" replace />,
-  },
-]);
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<AuthLayout />}>
+        <Route index element={<HomeRedirect />} />
+        <Route path="student/*" element={<StudentRoutes />}>
+          <Route index element={<StudentDashboard />} />
+          <Route path="dashboard" element={<StudentDashboard />} />
+          <Route path="home" element={<HomePage />} />
+          <Route path="careers" element={<CareersPage />} />
+          <Route path="plans" element={<PlansPage />} />
+          <Route path="courses" element={<CoursesPage />} />
+          <Route path="exercises" element={<ExercisesPage />} />
+          <Route path="assignments" element={<AssignmentsPage />} />
+          <Route path="checkins" element={<CheckinsPage />} />
+          <Route path="classes" element={<StudentClassesPage />} />
+        </Route>
+        <Route path="teacher/*" element={<TeacherRoutes />}>
+          <Route index element={<TeacherHomePage />} />
+          <Route path="home" element={<TeacherHomePage />} />
+          <Route path="courses" element={<TeacherCoursesPage />} />
+          <Route path="lesson-plans" element={<TeacherLessonPlanPage />} />
+          <Route path="resources" element={<TeacherResourcesPage />} />
+          <Route path="homework" element={<TeacherAssignmentsPage />} />
+          <Route path="tickets" element={<TeacherTicketsPage />} />
+          <Route path="students" element={<TeacherControlCenter />} />
+          <Route path="analytics" element={<TeacherAnalyticsPage />} />
+        </Route>
+      </Route>
+      <Route
+        path="/login"
+        element={
+          <GuestGuard>
+            <LoginPage />
+          </GuestGuard>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <GuestGuard>
+            <RegisterPage />
+          </GuestGuard>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
-    <ToastProvider>
-      <RouterProvider router={router} />
-    </ToastProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
