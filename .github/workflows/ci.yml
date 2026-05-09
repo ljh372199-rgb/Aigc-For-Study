@@ -116,20 +116,19 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           envs: STAGING_PORT
-          timeout: 30m
+          timeout: 60m
           script: |
             export STAGING_PORT="${{ vars.STAGING_PORT }}"
             cd /app/aigc-for-study
 
-            git pull origin develop
+            git pull origin develop || echo "Git pull failed, continuing..."
 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            docker-compose -f docker-compose.yml -f docker-compose.staging.yml pull api
-            docker-compose -f docker-compose.yml -f docker-compose.staging.yml pull db redis
+            docker-compose -f docker-compose.yml -f docker-compose.staging.yml pull --quiet api
             docker-compose -f docker-compose.yml -f docker-compose.staging.yml up -d api
 
-            sleep 15
+            sleep 20
             curl -f http://localhost:$STAGING_PORT/health || echo "Health check endpoint not available"
 
             echo "Deployment to staging completed on port $STAGING_PORT!"

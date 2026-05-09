@@ -9,7 +9,6 @@ import type { CareerAdvice, GenerateCareerAdviceParams, Student, Class } from '@
 
 export function TeacherCareerAdvicePage() {
   const [adviceList, setAdviceList] = useState<CareerAdvice[]>([]);
-  const [loading, setLoading] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [showStudentSelector, setShowStudentSelector] = useState(false);
@@ -34,13 +33,10 @@ export function TeacherCareerAdvicePage() {
 
   const loadAdviceList = async () => {
     try {
-      setLoading(true);
       const response = await careerAdviceApi.list({ limit: 20 });
       setAdviceList(response.items);
     } catch (error) {
       console.error('Failed to load advice list:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -271,7 +267,7 @@ export function TeacherCareerAdvicePage() {
         title="生成职业规划建议"
         size="lg"
       >
-        <CareerAdviceGenerator onGenerate={handleGenerate} loading={generating} />
+        <CareerAdviceGenerator onGenerate={handleGenerate} generating={generating} />
       </Modal>
 
       <Modal
@@ -282,7 +278,7 @@ export function TeacherCareerAdvicePage() {
           setSelectedClass('');
         }}
         title="选择学生"
-        size="xl"
+        size="lg"
       >
         <StudentSelector
           classes={classes}
@@ -322,10 +318,10 @@ export function TeacherCareerAdvicePage() {
 
 function CareerAdviceGenerator({ 
   onGenerate, 
-  loading 
+  generating 
 }: { 
   onGenerate: (params: GenerateCareerAdviceParams) => void; 
-  loading: boolean;
+  generating: boolean;
 }) {
   const [careerDirection, setCareerDirection] = useState('');
   const [studentLevel, setStudentLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
