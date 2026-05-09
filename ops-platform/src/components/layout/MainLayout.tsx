@@ -9,8 +9,8 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-background-primary flex">
-      <Sidebar collapsed={false} />
+    <div className="min-h-screen bg-[#000000] flex">
+      <Sidebar />
 
       <div className="flex-1 flex flex-col">
         <Header />

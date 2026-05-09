@@ -11,18 +11,6 @@ export const api = axios.create({
   },
 });
 
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
-
-const subscribeTokenRefresh = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback);
-};
-
-const onTokenRefreshed = (token: string) => {
-  refreshSubscribers.forEach((callback) => callback(token));
-  refreshSubscribers = [];
-};
-
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) {
@@ -35,38 +23,32 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(api(originalRequest));
-          });
-        });
-      }
       originalRequest._retry = true;
-      isRefreshing = true;
+
       try {
         const refresh_token = localStorage.getItem('refresh_token');
-        if (!refresh_token) throw new Error('No refresh token');
-        const res = await api.post('/auth/refresh', { refresh_token });
+        if (!refresh_token) {
+          throw new Error('No refresh token');
+        }
+
+        const res = await axios.post(`${API_BASE_URL}/auth/refresh`, { refresh_token });
         const { access_token, refresh_token: new_refresh_token } = res.data;
+
         localStorage.setItem('access_token', access_token);
         if (new_refresh_token) {
           localStorage.setItem('refresh_token', new_refresh_token);
         }
-        onTokenRefreshed(access_token);
+
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return api(originalRequest);
-      } catch {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+      } catch (refreshError) {
+        console.warn('Token refresh failed, continuing with current request');
         return Promise.reject(error);
-      } finally {
-        isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   }
 );
