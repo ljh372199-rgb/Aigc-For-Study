@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   BookOpen, Home, BarChart3, Settings, 
   Search, Bell, ChevronLeft, ChevronRight, LogOut, User, GraduationCap, ClipboardList,
-  FileText, FolderOpen, Ticket
+  FileText, FolderOpen, Ticket, Target
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -18,6 +18,7 @@ const navItems = [
   { path: '/teacher/resources', icon: FolderOpen, label: '资源管理' },
   { path: '/teacher/homework', icon: ClipboardList, label: '作业管理' },
   { path: '/teacher/tickets', icon: Ticket, label: '工单管理' },
+  { path: '/teacher/career-advice', icon: Target, label: '职业规划' },
   { path: '/teacher/students', icon: GraduationCap, label: '学生管理' },
   { path: '/teacher/analytics', icon: BarChart3, label: '数据统计' },
 ];

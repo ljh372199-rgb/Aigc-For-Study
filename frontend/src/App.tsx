@@ -23,6 +23,7 @@ import { TeacherLessonPlanPage } from '@/pages/TeacherLessonPlanPage';
 import { TeacherResourcesPage } from '@/pages/TeacherResourcesPage';
 import { TeacherTicketsPage } from '@/pages/TeacherTicketsPage';
 import { TeacherAnalyticsPage } from '@/pages/TeacherAnalyticsPage';
+import { TeacherCareerAdvicePage } from '@/pages/TeacherCareerAdvicePage';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 
 function LoadingScreen() {
@@ -98,6 +99,7 @@ function AppRoutes() {
           <Route path="tickets" element={<TeacherTicketsPage />} />
           <Route path="students" element={<TeacherControlCenter />} />
           <Route path="analytics" element={<TeacherAnalyticsPage />} />
+          <Route path="career-advice" element={<TeacherCareerAdvicePage />} />
         </Route>
       </Route>
       <Route
